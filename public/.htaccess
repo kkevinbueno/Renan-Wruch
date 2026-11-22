@@ -1,0 +1,51 @@
+# Wruch Personal — Apache (HostGator)
+Options -Indexes -MultiViews
+DirectoryIndex index.php
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # HTTPS obrigatório
+  RewriteCond %{HTTPS} !=on
+  RewriteCond %{HTTP:X-Forwarded-Proto} !https
+  RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+  # Bloqueia arquivos ocultos e de configuração
+  RewriteRule (^|/)\.(?!well-known) - [F,L]
+  RewriteRule ^wruch-root\.php$ - [F,L]
+
+  # Mantém o cabeçalho Authorization e de assinatura dos webhooks
+  RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+  # Tudo que não for arquivo existente vai para o index.php
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^ index.php [L,QSA]
+</IfModule>
+
+<IfModule mod_mime.c>
+  AddType application/manifest+json .webmanifest
+  AddType image/svg+xml .svg
+</IfModule>
+
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  <FilesMatch "\.(css|js|svg|png|webmanifest)$">
+    Header set Cache-Control "public, max-age=2592000"
+  </FilesMatch>
+  <Files "sw.js">
+    Header set Cache-Control "no-cache"
+    Header set Service-Worker-Allowed "/"
+  </Files>
+</IfModule>
+
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css application/javascript application/json image/svg+xml application/manifest+json
+</IfModule>
+
+# Uploads maiores (ajuste também no "MultiPHP INI Editor" do cPanel se necessário)
+<IfModule mod_php.c>
+  php_value upload_max_filesize 256M
+  php_value post_max_size 260M
+  php_value max_execution_time 120
+</IfModule>

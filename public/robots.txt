@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /$
+Allow: /privacidade
+Allow: /termos
+Disallow: /app
+Disallow: /painel
+Disallow: /media
+Disallow: /api
