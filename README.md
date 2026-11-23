@@ -60,3 +60,9 @@ O comando sobe o servidor embutido do PHP, um banco SQLite temporário e um **Me
 - [docs/FLUXOS.md](docs/FLUXOS.md): como cada fluxo funciona
 - [docs/ARQUITETURA.md](docs/ARQUITETURA.md): decisões técnicas, segurança e LGPD
 - [docs/CHECKLIST-PUBLICACAO.md](docs/CHECKLIST-PUBLICACAO.md)
+
+## Codespaces (ambiente de teste automático)
+
+- **Ao abrir o Codespace:** `.devcontainer/` instala o PHP, cria o `.env` de teste, prepara o banco SQLite, cria as contas de teste (senha `teste12345`) e liga o site na porta 8080, junto com as tarefas agendadas. Nada disso precisa ser feito à mão.
+- **Para atualizar com um zip novo:** arraste o `wruch-personal.zip` para a pasta do projeto e rode `bash atualizar.sh`. O script copia os arquivos, atualiza o banco, roda os testes, faz o commit, envia para o GitHub e religa o site. Se algum teste falhar, nada é enviado.
+- **Não vão para o GitHub nem para a HostGator:** `.devcontainer/` e `atualizar.sh` são só do ambiente de teste. As contas de teste se recusam a rodar fora de `APP_ENV=local` com SQLite.

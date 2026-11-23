@@ -3,3 +3,5 @@ storage/*/*
 !storage/*/.gitkeep
 *.sqlite
 /keys/
+*.zip
+cron/contas-teste.php

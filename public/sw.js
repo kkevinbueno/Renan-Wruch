@@ -3,7 +3,7 @@
  * - Guarda em cache SOMENTE arquivos estáticos públicos (CSS, JS, ícones) e a página offline.
  * - Páginas, API e /media (fotos, vídeos, dados de saúde) NUNCA são armazenados em cache.
  */
-const VERSION = 'wp-1.0.0';
+const VERSION = 'wp-1.1.0';
 const STATIC_CACHE = `static-${VERSION}`;
 const PRECACHE = ['/offline', '/assets/css/app.css', '/assets/js/app.js', '/assets/icons/sprite.svg', '/assets/icons/icon-192.png', '/manifest.webmanifest'];
 

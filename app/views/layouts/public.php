@@ -9,12 +9,13 @@ $u = Auth::user();
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title><?= e(($title ?? '') !== '' && $title !== $brand ? $title . ' · ' . $brand : $brand . ' — Consultoria esportiva online') ?></title>
 <meta name="description" content="<?= e(Settings::get('public_intro')) ?>">
-<meta name="theme-color" content="#f7f7f8">
+<meta name="theme-color" content="#090707">
+<meta name="color-scheme" content="dark">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="icon" href="/assets/icons/icon-192.png">
 <link rel="apple-touch-icon" href="/assets/icons/apple-touch-icon.png">
 <link rel="stylesheet" href="<?= asset('css/app.css') ?>">
-<style>:root{--accent:<?= e(Settings::get('accent_color')) ?>}</style>
+<style>:root{--accent:<?= e(accent_color()) ?>}</style>
 </head>
 <body data-csrf="<?= e(csrf_token()) ?>">
 <a class="skip-link" href="#main">Pular para o conteúdo</a>

@@ -45,15 +45,16 @@ $items = $mode === 'trainer' ? $trainer : $student;
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title><?= e(($title ?? '') !== '' ? $title . ' · ' . $brand : $brand) ?></title>
-<meta name="theme-color" content="#f7f7f8">
+<meta name="theme-color" content="#090707">
+<meta name="color-scheme" content="dark">
 <meta name="robots" content="noindex">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="icon" href="/assets/icons/icon-192.png">
 <link rel="apple-touch-icon" href="/assets/icons/apple-touch-icon.png">
 <link rel="stylesheet" href="<?= asset('css/app.css') ?>">
-<style>:root{--accent:<?= e(Settings::get('accent_color')) ?>}</style>
+<style>:root{--accent:<?= e(accent_color()) ?>}</style>
 </head>
-<body data-csrf="<?= e(csrf_token()) ?>" data-mode="<?= e($mode) ?>">
+<body data-csrf="<?= e(csrf_token()) ?>" data-mode="<?= e($mode) ?>"<?= $mode === 'student' ? ' class="has-tabbar"' : '' ?>>
 <a class="skip-link" href="#main">Pular para o conteúdo</a>
 <div class="shell">
   <aside class="sidebar" id="sidebar" aria-label="Menu principal">
@@ -100,6 +101,14 @@ $items = $mode === 'trainer' ? $trainer : $student;
     </main>
   </div>
 </div>
+<?php if ($mode === 'student'): ?>
+<nav class="tabbar" aria-label="Atalhos">
+  <?php foreach ([['home', '/app', 'home', 'Início'], ['workouts', '/app/treinos', 'dumbbell', 'Treinos'], ['calendar', '/app/calendario', 'calendar', 'Agenda'], ['chat', '/app/mensagens', 'message', 'Chat']] as [$key, $href, $ico, $label]): ?>
+    <a href="<?= e($href) ?>" class="<?= $nav === $key ? 'active' : '' ?>" <?= $nav === $key ? 'aria-current="page"' : '' ?>><?= icon($ico) ?><span><?= e($label) ?></span><?php if (!empty($counts[$key])): ?><i class="tab-dot" aria-label="<?= (int) $counts[$key] ?> não lidas"></i><?php endif; ?></a>
+  <?php endforeach; ?>
+  <button type="button" data-open-menu aria-controls="sidebar" aria-expanded="false"><?= icon('menu') ?><span>Mais</span></button>
+</nav>
+<?php endif; ?>
 <div class="toasts" id="toasts" aria-live="polite" data-flashes="<?= e(json_enc(take_flashes())) ?>"></div>
 <div class="offline-bar" role="status"><?= icon('wifi-off', 'icon-sm') ?> Sem conexão — suas alterações serão enviadas quando voltar.</div>
 <div class="update-banner" id="update-banner" role="status"><span class="grow small">Nova versão disponível.</span><button class="btn sm" type="button" data-sw-update>Atualizar</button></div>

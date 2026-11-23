@@ -9,7 +9,7 @@ final class Settings
     public const DEFAULTS = [
         'brand_name' => 'Wruch Personal',
         'trainer_name' => 'Renan Wruch',
-        'accent_color' => '#2f5d50',
+        'accent_color' => '#b4daf3',
         'public_headline' => 'Consultoria esportiva online com acompanhamento individual',
         'public_intro' => 'Treinos planejados para a sua rotina, o seu esporte e o seu objetivo, com acompanhamento próximo do Renan pela plataforma.',
         'public_about' => '',

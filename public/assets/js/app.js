@@ -68,9 +68,10 @@
   /* ---------- Menu lateral ---------- */
   const sidebar = $('#sidebar');
   const scrim = $('.scrim');
-  const menuBtn = $('[data-open-menu]');
-  const closeMenu = () => { sidebar?.classList.remove('open'); scrim?.classList.remove('show'); menuBtn?.setAttribute('aria-expanded', 'false'); };
-  menuBtn?.addEventListener('click', () => { sidebar.classList.add('open'); scrim.classList.add('show'); menuBtn.setAttribute('aria-expanded', 'true'); sidebar.querySelector('a')?.focus(); });
+  const menuBtns = Array.from(document.querySelectorAll('[data-open-menu]'));
+  const menuBtn = menuBtns[0];
+  const closeMenu = () => { sidebar?.classList.remove('open'); scrim?.classList.remove('show'); menuBtns.forEach((b) => b.setAttribute('aria-expanded', 'false')); };
+  menuBtns.forEach((b) => b.addEventListener('click', () => { sidebar.classList.add('open'); scrim.classList.add('show'); b.setAttribute('aria-expanded', 'true'); sidebar.querySelector('a')?.focus(); }));
   scrim?.addEventListener('click', closeMenu);
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMenu(); });
 

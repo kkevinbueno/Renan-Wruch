@@ -44,7 +44,6 @@ final class EmailTemplates
 
     private static function html(string $greeting, array $paragraphs, string $cta, string $link, string $brand): string
     {
-        $accent = e(Settings::get('accent_color'));
         $p = '';
         foreach ($paragraphs as $para) {
             $p .= '<p style="margin:0 0 14px;line-height:1.6;color:#3f3f46">' . e($para) . '</p>';
@@ -54,7 +53,7 @@ final class EmailTemplates
             . '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#ffffff;border:1px solid #e4e4e7;border-radius:12px;padding:32px">'
             . '<tr><td style="font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:#71717a;padding-bottom:20px">' . e($brand) . '</td></tr>'
             . '<tr><td><h1 style="font-size:20px;margin:0 0 16px;color:#18181b">' . e($greeting) . '</h1>' . $p
-            . '<p style="margin:24px 0 8px"><a href="' . e($link) . '" style="display:inline-block;background:' . $accent . ';color:#ffffff;text-decoration:none;padding:12px 20px;border-radius:8px;font-weight:600">' . e($cta) . '</a></p>'
+            . '<p style="margin:24px 0 8px"><a href="' . e($link) . '" style="display:inline-block;background:#0e0b0c;color:#ffffff;text-decoration:none;padding:13px 24px;border-radius:999px;font-weight:600;letter-spacing:.01em">' . e($cta) . '</a></p>'
             . '<p style="font-size:12px;color:#a1a1aa;margin-top:24px;line-height:1.5">Se o botão não funcionar, copie este endereço no navegador:<br>' . e($link) . '</p>'
             . '</td></tr></table>'
             . '<p style="font-size:12px;color:#a1a1aa;margin-top:16px">Você recebe este e-mail por ter uma conta no ' . e($brand) . '. Preferências: ' . e(url('/app/perfil')) . '</p>'

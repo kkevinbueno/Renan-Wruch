@@ -50,6 +50,16 @@ function asset(string $file): string
     return '/assets/' . $file . '?v=' . $v;
 }
 
+/** Cor de destaque válida para o tema escuro (contas antigas com o verde padrão migram para o azul). */
+function accent_color(): string
+{
+    $c = strtolower(trim((string) Settings::get('accent_color')));
+    if (!preg_match('/^#[0-9a-f]{6}$/', $c) || $c === '#2f5d50') {
+        return '#b4daf3';
+    }
+    return $c;
+}
+
 function redirect(string $to, int $code = 303): never
 {
     header('Location: ' . $to, true, $code);

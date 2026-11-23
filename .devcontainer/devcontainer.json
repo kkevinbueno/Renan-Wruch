@@ -1,0 +1,10 @@
+{
+  "name": "Wruch Personal",
+  "image": "mcr.microsoft.com/devcontainers/universal:2",
+  "postCreateCommand": "bash .devcontainer/setup.sh",
+  "postStartCommand": "bash .devcontainer/start.sh",
+  "forwardPorts": [8080],
+  "portsAttributes": {
+    "8080": { "label": "Site Wruch Personal", "onAutoForward": "openBrowser" }
+  }
+}
