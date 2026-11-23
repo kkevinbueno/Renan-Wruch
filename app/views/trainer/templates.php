@@ -1,4 +1,6 @@
-<div class="page-head"><div><h1>Modelos de treino</h1><p>Estruturas reutilizáveis para criar treinos de qualquer aluno.</p></div></div>
+<a class="btn ghost sm" href="/painel/mais"><?= icon('chevron-left', 'icon-sm') ?> Mais</a>
+<div class="page-head mt"><div><h1>Biblioteca</h1><p>Modelos reutilizáveis para criar treinos de qualquer aluno.</p></div></div>
+<nav class="tabs"><a href="/painel/biblioteca">Exercícios</a><a href="/painel/modelos" class="active">Modelos de treino</a></nav>
 <div class="grid grid-main">
   <div>
     <?php if (!$templates): ?>

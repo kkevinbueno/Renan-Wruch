@@ -48,6 +48,7 @@ Router::post('/app/treinos/{id}/mudar-dia', [StudentWorkoutController::class, 'r
 Router::get('/app/sessao/{id}', [StudentWorkoutController::class, 'session'], ['app']);
 Router::post('/app/sessao/{id}/registro', [StudentWorkoutController::class, 'saveEntry'], ['app']);
 Router::post('/app/sessao/{id}/concluir', [StudentWorkoutController::class, 'complete'], ['app']);
+Router::get('/app/sessao/{id}/concluido', [StudentWorkoutController::class, 'done'], ['app']);
 Router::get('/app/historico', [StudentWorkoutController::class, 'history'], ['app']);
 
 Router::get('/app/autoavaliacao', [SelfAssessmentController::class, 'index'], ['app']);
@@ -66,6 +67,8 @@ Router::post('/app/avaliacoes/{id}/enviar', [AssessmentController::class, 'submi
 
 Router::get('/app/calendario', [CalendarController::class, 'student'], ['app']);
 Router::get('/app/mensagens', [ChatController::class, 'student'], ['chat']);
+Router::get('/app/eu', [StudentController::class, 'me'], ['student']);
+Router::get('/app/progresso', [StudentController::class, 'progress'], ['app']);
 Router::get('/app/perfil', [ProfileController::class, 'show'], ['student']);
 Router::post('/app/perfil', [ProfileController::class, 'update'], ['student']);
 Router::post('/app/perfil/senha', [ProfileController::class, 'password'], ['student']);
@@ -119,6 +122,7 @@ Router::post('/painel/biblioteca/{id}', [LibraryController::class, 'store'], ['t
 Router::post('/painel/biblioteca/{id}/duplicar', [LibraryController::class, 'duplicate'], ['trainer']);
 Router::post('/painel/biblioteca/{id}/arquivar', [LibraryController::class, 'archive'], ['trainer']);
 
+Router::get('/painel/mais', [TrainerController::class, 'more'], ['trainer']);
 Router::get('/painel/solicitacoes', [TrainerController::class, 'requests'], ['trainer']);
 Router::post('/painel/solicitacoes/{id}', [TrainerController::class, 'decideRequest'], ['trainer']);
 Router::get('/painel/avaliacoes', [AssessmentController::class, 'trainerIndex'], ['trainer']);

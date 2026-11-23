@@ -205,12 +205,48 @@ final class StudentWorkoutController
     public function complete(int $id): void
     {
         $s = $this->ownSession($id);
+        $notes = mb_substr(trim((string) input('notes', '')), 0, 2000) ?: (string) $s['notes'];
+        $feel = (string) input('feeling', '');
+        $feelings = ['😫' => 'muito cansativo', '😕' => 'difícil', '🙂' => 'bom', '😄' => 'muito bom', '🤩' => 'excelente'];
+        if (isset($feelings[$feel])) {
+            $notes = trim(preg_replace('/\n?Sensação: .*$/u', '', $notes) . "\nSensação: {$feel} {$feelings[$feel]}");
+        }
         DB::update('workout_sessions', [
             'status' => 'completed', 'completed_at' => $s['completed_at'] ?? now(), 'updated_at' => now(),
-            'notes' => mb_substr(trim((string) input('notes', '')), 0, 2000) ?: $s['notes'],
+            'notes' => $notes !== '' ? $notes : null,
         ], 'id = ?', [$id]);
-        flash('success', 'Treino concluído. Bom trabalho!');
-        redirect('/app');
+        if ($s['status'] === 'completed') {
+            flash('success', 'Registro atualizado.');
+            redirect('/app');
+        }
+        redirect('/app/sessao/' . $id . '/concluido');
+    }
+
+    /** Tela de comemoração após concluir o treino. */
+    public function done(int $id): void
+    {
+        $s = $this->ownSession($id);
+        if ($s['status'] !== 'completed') redirect('/app/sessao/' . $id);
+        $w = Workouts::findOrFail((int) $s['workout_id']);
+        $minutes = 0;
+        if ($s['started_at'] && $s['completed_at']) {
+            $minutes = max(1, (int) round((strtotime($s['completed_at']) - strtotime($s['started_at'])) / 60));
+            if ($minutes > 600) $minutes = 0;
+        }
+        $volume = 0.0; $sets = 0;
+        foreach (DB::col('SELECT data FROM session_entries WHERE session_id = ?', [$id]) as $raw) {
+            foreach (json_decode_array($raw)['sets'] ?? [] as $set) {
+                if (empty($set['done'])) continue;
+                $sets++;
+                $reps = (float) str_replace(',', '.', (string) ($set['reps'] ?? 0));
+                $load = (float) str_replace(',', '.', (string) ($set['load'] ?? 0));
+                $volume += $reps * $load;
+            }
+        }
+        View::render('student/session_done', [
+            'title' => 'Treino concluído', 'nav' => 'workouts', 'session' => $s, 'workout' => $w,
+            'minutes' => $minutes, 'volume' => (int) round($volume), 'sets' => $sets, 'streak' => Progress::streak((int) Auth::id(), today()),
+        ]);
     }
 
     public function history(): void

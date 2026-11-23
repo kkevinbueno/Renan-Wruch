@@ -20,7 +20,7 @@ final class TrainerController
         $needsUpdate = array_values(array_filter($needsUpdate, fn($r) => !$r['last_pub'] || $r['last_pub'] < $staleLimit));
         usort($needsUpdate, fn($a, $b) => strcmp((string) $a['last_pub'], (string) $b['last_pub']));
         View::render('trainer/dashboard', [
-            'title' => 'Painel', 'nav' => 'home',
+            'title' => 'Início', 'nav' => 'home',
             'active' => (int) DB::val("SELECT COUNT(*) FROM users WHERE role = 'student' AND status = 'active'"),
             'c' => $c,
             'pendingList' => DB::all("SELECT id, name, email, created_at FROM users WHERE role = 'student' AND status = 'pending' AND email_verified_at IS NOT NULL ORDER BY created_at LIMIT 5"),
@@ -34,7 +34,21 @@ final class TrainerController
             'unreadList' => array_slice(array_filter(ChatController::conversations(), fn($r) => (int) $r['unread'] > 0), 0, 5),
             'failedEmails' => (int) DB::val("SELECT COUNT(*) FROM email_queue WHERE status = 'failed' AND created_at >= ?", [gmdate('Y-m-d H:i:s', Clock::time() - 7 * 86400)]),
             'cronLast' => Settings::get('cron_last_run'),
+            'requestList' => DB::all("SELECT r.*, u.name AS student_name, w.name, w.label FROM reschedule_requests r JOIN users u ON u.id = r.student_id JOIN workouts w ON w.id = r.workout_id WHERE r.status = 'pending' ORDER BY r.created_at LIMIT 6"),
+            'failedList' => DB::all("SELECT s.id, s.student_id, u.name FROM subscriptions s JOIN users u ON u.id = s.student_id WHERE s.status = 'payment_failed' ORDER BY s.updated_at DESC LIMIT 5"),
+            'students' => DB::all("SELECT u.id, u.name, u.avatar_file_id,
+                    (SELECT MAX(s.updated_at) FROM workout_sessions s WHERE s.student_id = u.id) AS last_act,
+                    (SELECT w.modality_id FROM workouts w WHERE w.student_id = u.id AND w.archived_at IS NULL AND w.is_template = 0 ORDER BY w.id LIMIT 1) AS modality_id
+                FROM users u WHERE u.role = 'student' AND u.status = 'active' ORDER BY last_act IS NULL, last_act DESC LIMIT 6"),
+            'todayEvents' => DB::all("SELECT e.*, u.name FROM calendar_events e JOIN users u ON u.id = e.student_id WHERE e.event_date = ? AND e.type <> 'rest' ORDER BY e.start_time IS NULL, e.start_time LIMIT 8", [$today]),
+            'received' => (int) DB::val("SELECT COALESCE(SUM(amount_cents),0) FROM payments WHERE status = 'approved' AND paid_at >= ?", [substr($today, 0, 8) . '01 00:00:00']),
         ]);
+    }
+
+    /** "Mais": biblioteca, modelos, financeiro e configurações. */
+    public function more(): void
+    {
+        View::render('trainer/more', ['title' => 'Mais', 'nav' => 'more', 'c' => Cron::trainerCounters()]);
     }
 
     public function requests(): void

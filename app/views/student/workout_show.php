@@ -1,19 +1,19 @@
 <?php $st = $session['status'] ?? null; $canStart = $date <= today(); ?>
-<div class="page-head">
-  <div>
-    <p class="muted small"><a href="/app/treinos">Treinos</a> / <?= e($modality['name']) ?></p>
-    <h1><?= e(Workouts::title($workout)) ?></h1>
-    <p><?= e(fmt_date($date, true)) ?> · <?= e(Schedule::sessionStatusLabel($st)) ?> · <?= e(weekday_names(Workouts::weekdays($workout))) ?></p>
-  </div>
-  <div class="btn-row">
+<a class="btn ghost sm" href="/app/treinos"><?= icon('chevron-left', 'icon-sm') ?> Treinos</a>
+<section class="hero-workout <?= e(mod_tone($modality)) ?> mt">
+  <div class="top"><span class="chip mod"><?= e($modality['name']) ?></span><span class="eyebrow"><?= e(fmt_date_short($date)) ?> · <?= e(Schedule::sessionStatusLabel($st)) ?></span></div>
+  <h2><?= e(Workouts::title($workout)) ?></h2>
+  <p class="meta"><?= e(weekday_names(Workouts::weekdays($workout))) ?></p>
+  <div class="btn-row mt">
     <?php if ($canStart && $st !== 'completed'): ?>
       <form method="post" action="/app/treinos/<?= (int) $workout['id'] ?>/iniciar"><?= csrf_field() ?><input type="hidden" name="date" value="<?= e($date) ?>">
-        <button class="btn" type="submit"><?= icon('play') ?> <?= $st === 'in_progress' ? 'Continuar' : 'Iniciar treino' ?></button></form>
+        <button class="btn" type="submit"><?= icon('play') ?> <?= $st === 'in_progress' ? 'Continuar treino' : 'Começar treino' ?></button></form>
     <?php elseif ($st === 'completed'): ?>
-      <a class="btn secondary" href="/app/sessao/<?= (int) $session['id'] ?>"><?= icon('check') ?> Ver registro</a>
+      <a class="btn lg block" href="/app/sessao/<?= (int) $session['id'] ?>"><?= icon('check') ?> Ver registro</a>
     <?php endif; ?>
   </div>
-</div>
+</section>
+<div class="mt"></div>
 
 <?php if ($version['general_notes']): ?>
   <div class="callout mb"><?= icon('clipboard') ?><p class="pre small"><?= e($version['general_notes']) ?></p></div>
@@ -21,8 +21,10 @@
 
 <?= View::partial('workout_items', ['items' => $items]) ?>
 
-<div class="grid grid-2 section">
-  <form class="card" method="post" action="/app/treinos/<?= (int) $workout['id'] ?>/situacao">
+<details class="card more section">
+  <summary><?= icon('repeat', 'icon-sm') ?> Não vai treinar hoje ou quer trocar o dia?</summary>
+<div class="grid grid-2 mt">
+  <form method="post" action="/app/treinos/<?= (int) $workout['id'] ?>/situacao">
     <?= csrf_field() ?>
     <input type="hidden" name="date" value="<?= e($date) ?>">
     <h3>Não vai treinar com o registro completo?</h3>
@@ -36,7 +38,7 @@
     <button class="btn secondary mt" type="submit">Registrar situação</button>
   </form>
 
-  <form class="card" method="post" action="/app/treinos/<?= (int) $workout['id'] ?>/mudar-dia">
+  <form method="post" action="/app/treinos/<?= (int) $workout['id'] ?>/mudar-dia">
     <?= csrf_field() ?>
     <h3>Pedir mudança de dia</h3>
     <p class="small muted mt">O Renan aprova ou recusa. A programação muda somente após a aprovação.</p>
@@ -48,3 +50,4 @@
     <button class="btn secondary mt" type="submit"><?= icon('repeat', 'icon-sm') ?> Enviar pedido</button>
   </form>
 </div>
+</details>

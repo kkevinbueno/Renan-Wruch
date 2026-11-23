@@ -207,7 +207,7 @@ eq(dbv("SELECT role FROM users WHERE email = 'renanrdw@gmail.com'"), 'trainer', 
 ok((bool) dbv("SELECT COUNT(*) FROM email_queue WHERE to_email = 'renanrdw@gmail.com' AND template = 'signup_pending'"), 'Renan notificado do novo cadastro');
 $r = $renan->get('/painel');
 eq($r['status'], 200, 'Renan acessa o painel');
-ok(str_contains($r['body'], 'Aguardando aprovação'), 'painel mostra cadastros aguardando aprovação');
+ok(str_contains($r['body'], 'aguardando aprovação') && str_contains($r['body'], 'Cadastro novo'), 'painel mostra cadastros aguardando aprovação');
 $renan->get("/painel/alunos/{$anaId}");
 $renan->post("/painel/alunos/{$anaId}/aprovar", ['note' => 'Bem-vinda']);
 eq(dbv('SELECT status FROM users WHERE id = ?', [$anaId]), 'active', 'Renan aprova o cadastro');
@@ -621,12 +621,12 @@ ok((int) dbv('SELECT COUNT(*) FROM workouts WHERE student_id = ? AND is_template
 $renan->post("/painel/biblioteca/{$exId}/duplicar");
 ok((int) dbv("SELECT COUNT(*) FROM exercises WHERE name LIKE 'Agachamento livre%'") === 2, 'exercício duplicado na biblioteca');
 $v1 = (int) dbv('SELECT id FROM workout_versions WHERE workout_id = ? AND version_no = 1', [$wid]);
-$studentPages = ['/app', '/app/treinos', "/app/treinos/{$wid}", '/app/historico', '/app/autoavaliacao', '/app/autoavaliacao?data=' . date_add_days(today(), -1), '/app/alimentacao', '/app/avaliacoes', "/app/avaliacoes/{$aid}", '/app/calendario', '/app/calendario?ver=mes', '/app/mensagens', '/app/perfil', '/app/assinatura', "/app/sessao/{$sid}"];
+$studentPages = ['/app', '/app/treinos', "/app/treinos/{$wid}", '/app/historico', '/app/autoavaliacao', '/app/autoavaliacao?data=' . date_add_days(today(), -1), '/app/alimentacao', '/app/avaliacoes', "/app/avaliacoes/{$aid}", '/app/calendario', '/app/calendario?ver=mes', '/app/mensagens', '/app/perfil', '/app/assinatura', "/app/sessao/{$sid}", '/app/eu', '/app/progresso', "/app/sessao/{$sid}/concluido"];
 foreach ($studentPages as $pg) {
     $r = $novo->get($pg);
     ok($r['status'] === 200 && !str_contains($r['body'], 'Algo deu errado') && !str_contains($r['body'], 'Warning:'), "aluno abre {$pg} (status {$r['status']})");
 }
-$trainerPages = ['/painel', '/painel/alunos', '/painel/alunos?situacao=active&q=Ana&ordem=activity&modalidade=' . $musc, '/painel/alunos?ordem=assessment&testes=1'];
+$trainerPages = ['/painel', '/painel/mais', '/painel/alunos?situacao=late', '/painel/alunos', '/painel/alunos?situacao=active&q=Ana&ordem=activity&modalidade=' . $musc, '/painel/alunos?ordem=assessment&testes=1'];
 foreach (array_keys(TrainerStudentsController::TABS) as $tab) $trainerPages[] = "/painel/alunos/{$anaId}?aba={$tab}";
 $trainerPages = array_merge($trainerPages, ["/painel/alunos/{$anaId}?aba=calendario&ver=mes&evento={$evId}", "/painel/alunos/{$brunoId}", "/painel/treinos/{$wid}", "/painel/treinos/{$wid}/versoes/{$v1}", "/painel/treinos/{$tpl2}", '/painel/modelos', '/painel/biblioteca', '/painel/biblioteca?arquivados=1', '/painel/biblioteca/novo', "/painel/biblioteca/{$exId}", '/painel/solicitacoes', '/painel/avaliacoes', '/painel/avaliacoes?situacao=revisadas', "/painel/avaliacoes/{$aid}", '/painel/calendario', "/painel/calendario?ver=mes&aluno={$anaId}&evento={$evId}", '/painel/mensagens', "/painel/mensagens/{$anaId}", '/painel/financeiro', "/painel/financeiro?plano={$planId}", '/painel/financeiro?situacao=active']);
 foreach (array_keys(TrainerSettingsController::TABS) as $tab) $trainerPages[] = "/painel/configuracoes?aba={$tab}";
@@ -641,7 +641,7 @@ foreach (['/painel', "/painel/alunos/{$anaId}?aba=dados", '/painel/configuracoes
 }
 $renan->get('/painel/configuracoes?aba=pagina');
 $renan->post('/painel/configuracoes', ['tab' => 'pagina', 'public_headline' => 'Treino planejado para você', 'public_intro' => 'Intro', 'public_about' => 'Formado em Educação Física', 'contact_whatsapp' => '+55 19 99808-9854', 'contact_whatsapp_label' => '+55 19 99808-9854', 'contact_instagram' => 'https://www.instagram.com/renanwruch/', 'contact_email' => 'renanrdw@gmail.com']);
-$home = (new Client($base, 'pub2'))->get('/')['body'];
+$home = preg_replace('/\s+/u', ' ', strip_tags((new Client($base, 'pub2'))->get('/')['body']));
 ok(str_contains($home, 'Treino planejado para você') && str_contains($home, 'Formado em Educação Física'), 'Renan edita a página pública pela própria interface');
 eq(dbv("SELECT setting_value FROM settings WHERE setting_key = 'contact_whatsapp'"), '5519998089854', 'WhatsApp normalizado');
 

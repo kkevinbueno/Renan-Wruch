@@ -1,4 +1,5 @@
-<div class="page-head">
+<a class="btn ghost sm" href="/app/eu"><?= icon('chevron-left', 'icon-sm') ?> Eu</a>
+<div class="page-head mt">
   <div><h1>Avaliações físicas</h1><p>Próxima avaliação: <b><?= $profile['next_assessment_on'] ? e(fmt_date($profile['next_assessment_on'], true)) : 'a definir pelo Renan' ?></b> · intervalo de <?= plural((int) $profile['assessment_every_days'], 'dia', 'dias') ?></p></div>
   <a class="btn" href="/app/avaliacoes/nova"><?= icon('camera') ?> <?= $draft ? 'Continuar envio' : 'Nova avaliação' ?></a>
 </div>

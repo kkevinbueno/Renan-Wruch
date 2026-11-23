@@ -1,3 +1,5 @@
 Fonte Inter (Rasmus Andersson) — SIL Open Font License 1.1
 https://github.com/rsms/inter  ·  https://openfontlicense.org
 Arquivos reduzidos (subconjunto latino) para uso no Wruch Personal.
+
+Anton (Vernon Adams) — SIL Open Font License 1.1. Arquivo Anton-Regular.woff é um subconjunto latino da fonte original.

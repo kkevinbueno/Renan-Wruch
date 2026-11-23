@@ -1,5 +1,16 @@
-<div class="page-head"><div><h1>Configurações</h1><p>Parâmetros da consultoria, da página pública e da plataforma.</p></div></div>
-<nav class="tabs"><?php foreach ($tabs as $k => $l): ?><a href="?aba=<?= e($k) ?>" class="<?= $tab === $k ? 'active' : '' ?>"><?= e($l) ?></a><?php endforeach; ?></nav>
+<?php
+$dev = Auth::isDeveloper();
+$groups = ['perfil' => ['Meu perfil', ['conta' => 'Conta', 'consultoria' => 'Nomes', 'notificacoes' => 'E-mails']], 'publica' => ['Página pública', ['pagina' => 'Página']], 'regras' => ['Regras', ['operacao' => 'Acompanhamento', 'modalidades' => 'Modalidades', 'lgpd' => 'Privacidade']]];
+if ($dev) $groups['tecnico'] = ['Técnico', ['registros' => 'Registros']];
+$current = 'perfil';
+foreach ($groups as $g => [, $subs]) if (isset($subs[$tab])) $current = $g;
+?>
+<a class="btn ghost sm" href="/painel/mais"><?= icon('chevron-left', 'icon-sm') ?> Mais</a>
+<div class="page-head mt"><div><h1>Configurações</h1></div></div>
+<nav class="tabs"><?php foreach ($groups as $g => [$label, $subs]): ?><a href="?aba=<?= e(array_key_first($subs)) ?>" class="<?= $current === $g ? 'active' : '' ?>"><?= e($label) ?></a><?php endforeach; ?></nav>
+<?php if (count($groups[$current][1]) > 1): ?>
+  <div class="seg mb"><?php foreach ($groups[$current][1] as $k => $l): ?><a href="?aba=<?= e($k) ?>" class="<?= $tab === $k ? 'active' : '' ?>"><?= e($l) ?></a><?php endforeach; ?></div>
+<?php endif; ?>
 
 <?php if (in_array($tab, ['consultoria', 'pagina', 'notificacoes', 'operacao'], true) || $tab === 'lgpd'): ?>
 <form method="post" action="/painel/configuracoes" class="<?= $tab === 'lgpd' ? '' : 'card' ?>" id="settings-form" <?= $tab === 'lgpd' ? 'hidden' : '' ?>>
@@ -9,7 +20,7 @@
     <div class="form-grid cols-2">
       <div class="field"><label for="bn">Nome da plataforma</label><input id="bn" name="brand_name" value="<?= e($s['brand_name']) ?>"></div>
       <div class="field"><label for="tn">Nome do treinador</label><input id="tn" name="trainer_name" value="<?= e($s['trainer_name']) ?>"></div>
-      <div class="field"><label for="ac">Cor de destaque</label><div class="row nowrap"><input id="ac" type="color" name="accent_color" value="<?= e($s['accent_color']) ?>" style="width:56px;padding:4px;min-height:44px"><span class="small muted">Usada com moderação em botões e indicadores.</span></div></div>
+      <?php if ($dev): ?><div class="field"><label for="ac">Cor de destaque (e-mails)</label><div class="row nowrap"><input id="ac" type="color" name="accent_color" value="<?= e($s['accent_color']) ?>" style="width:56px;padding:4px;min-height:44px"><span class="small muted">O site usa a paleta preto, azul-pó e branco.</span></div></div><?php else: ?><input type="hidden" name="accent_color" value="<?= e($s['accent_color']) ?>"><?php endif; ?>
     </div>
   <?php elseif ($tab === 'pagina'): ?>
     <p class="small muted mb">Use apenas informações verdadeiras e verificadas. Depoimentos, certificações e resultados não são exibidos automaticamente.</p>
@@ -46,7 +57,10 @@
       <div class="field"><label for="dad">Avaliação física a cada (dias)</label><input id="dad" type="number" name="default_assessment_days" min="7" max="365" value="<?= (int) $s['default_assessment_days'] ?>"></div>
       <div class="field"><label for="wsd">Treino “precisa de atualização” após (dias)</label><input id="wsd" type="number" name="workout_stale_days" min="7" max="365" value="<?= (int) $s['workout_stale_days'] ?>"></div>
     </div>
-    <p class="section-title mt-lg">Limites de arquivos (MB)</p>
+    <?php if (!$dev): ?>
+      <?php foreach (['upload_image_mb', 'upload_video_mb', 'upload_audio_mb', 'upload_document_mb'] as $k): ?><input type="hidden" name="<?= $k ?>" value="<?= (int) $s[$k] ?>"><?php endforeach; ?>
+    <?php else: ?>
+    <p class="section-title mt-lg">Limites de arquivos (MB) · técnico</p>
     <div class="form-grid" style="grid-template-columns:repeat(auto-fit,minmax(130px,1fr))">
       <div class="field"><label for="ui">Imagens</label><input id="ui" type="number" name="upload_image_mb" value="<?= (int) $s['upload_image_mb'] ?>"></div>
       <div class="field"><label for="uv">Vídeos</label><input id="uv" type="number" name="upload_video_mb" value="<?= (int) $s['upload_video_mb'] ?>"></div>
@@ -54,6 +68,7 @@
       <div class="field"><label for="ud">Documentos</label><input id="ud" type="number" name="upload_document_mb" value="<?= (int) $s['upload_document_mb'] ?>"></div>
     </div>
     <p class="hint">O servidor também limita uploads (upload_max_filesize atual: <?= e(ini_get('upload_max_filesize')) ?>, post_max_size: <?= e(ini_get('post_max_size')) ?>).</p>
+    <?php endif; ?>
   <?php elseif ($tab === 'lgpd'): ?>
     <div class="field"><label for="rm">Excluir fotos de alunos encerrados após (meses)</label><input id="rm" type="number" name="retention_months_after_end" min="0" max="120" value="<?= (int) $s['retention_months_after_end'] ?>"></div>
   <?php endif; ?>
@@ -68,9 +83,9 @@
     <div class="row mt"><?php if ((int) $s['public_photo_file_id']): ?><img src="<?= e(Files::publicUrl((int) $s['public_photo_file_id'])) ?>" alt="" style="width:72px;height:90px;object-fit:cover;border-radius:10px"><?php endif; ?><input type="file" name="photo" accept="image/*" required class="grow"></div>
     <button class="btn secondary sm mt" type="submit">Enviar foto</button>
   </form>
-<?php elseif ($tab === 'operacao'): ?>
+<?php elseif ($tab === 'operacao' && $dev): ?>
   <div class="card mt">
-    <h3>Tarefas agendadas e e-mail</h3>
+    <h3>Tarefas agendadas e e-mail · técnico</h3>
     <dl class="kv mt">
       <dt>Última execução do cron</dt><dd><?= $cronLast ? e(fmt_datetime($cronLast)) : '<span class="badge danger">nunca</span>' ?></dd>
       <dt>Envio de e-mail</dt><dd><?= e($mailTransport) ?> · remetente <?= e(config('mail.from')) ?></dd>
@@ -102,6 +117,7 @@
     <p class="small muted mt">Fotografias de alunos encerrados ou recusados podem ser excluídas automaticamente. Use 0 para desativar. Recomenda-se definir o prazo com orientação jurídica.</p>
     <button class="btn secondary sm mt" type="button" data-show-form="settings-form">Alterar prazo (atual: <?= (int) $s['retention_months_after_end'] ?: 'desativado' ?><?= (int) $s['retention_months_after_end'] ? ' meses' : '' ?>)</button>
   </div>
+  <p class="small mb"><a class="link" href="?aba=registros"><?= icon('shield', 'icon-sm') ?> Ver registro de ações (inclui ações de desenvolvedores)</a></p>
   <div class="card">
     <h3>Solicitações dos titulares</h3>
     <?php if (!$requests): ?><p class="small muted mt">Nenhuma solicitação.</p><?php endif; ?>

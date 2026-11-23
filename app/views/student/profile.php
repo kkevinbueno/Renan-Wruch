@@ -1,4 +1,5 @@
-<div class="page-head"><div><h1>Meu perfil</h1><p><?= e($user['email']) ?> · conta criada em <?= e(fmt_date(to_local($user['created_at'])->format('Y-m-d'))) ?></p></div></div>
+<a class="btn ghost sm" href="/app/eu"><?= icon('chevron-left', 'icon-sm') ?> Eu</a>
+<div class="page-head mt"><div><h1>Meus dados</h1><p><?= e($user['email']) ?> · conta criada em <?= e(fmt_date(to_local($user['created_at'])->format('Y-m-d'))) ?></p></div></div>
 <div class="grid grid-2">
   <div class="stack">
     <form class="card" method="post" action="/app/perfil">
@@ -41,7 +42,7 @@
       </dl>
     </div>
 
-    <form class="card" method="post" action="/app/perfil/notificacoes">
+    <form class="card" method="post" action="/app/perfil/notificacoes" id="notificacoes">
       <?= csrf_field() ?>
       <h3>Preferências de e-mail</h3>
       <p class="small muted mt">Avisos essenciais (conta, segurança, aprovação e pagamentos) são sempre enviados.</p>
@@ -53,7 +54,7 @@
       <button class="btn secondary mt" type="submit">Salvar preferências</button>
     </form>
 
-    <div class="card">
+    <div class="card" id="privacidade">
       <h3>Privacidade e seus dados (LGPD)</h3>
       <p class="small muted mt">Você pode baixar uma cópia dos seus dados ou registrar um pedido de acesso, correção ou exclusão.</p>
       <a class="btn secondary sm mt" href="/app/perfil/exportar"><?= icon('download', 'icon-sm') ?> Baixar meus dados (JSON)</a>

@@ -379,6 +379,41 @@ function avatar(?array $u, string $cls = ''): string
     return '<span class="avatar ' . e($cls) . '" aria-hidden="true">' . $inner . '</span>';
 }
 
+/** Classe de cor da modalidade (m-<slug>) para cartões, avatares e etiquetas. */
+function mod_tone($modality): string
+{
+    static $slugs = null;
+    if ($modality === null || $modality === '' || $modality === 0) return '';
+    if (is_array($modality)) $modality = $modality['slug'] ?? ($modality['modality_id'] ?? null);
+    if (is_string($modality) && !ctype_digit($modality)) return 'm-' . preg_replace('/[^a-z0-9-]/', '', $modality);
+    if ($slugs === null) {
+        $slugs = [];
+        foreach (DB::all('SELECT id, slug FROM modalities') as $m) $slugs[(int) $m['id']] = $m['slug'];
+    }
+    $slug = $slugs[(int) $modality] ?? '';
+    return $slug !== '' ? 'm-' . preg_replace('/[^a-z0-9-]/', '', $slug) : '';
+}
+
+/** Tema escolhido no botão sol/lua ('light', 'dark' ou '' = automático). */
+function ui_theme(): string
+{
+    $t = $_COOKIE['wp_theme'] ?? '';
+    return in_array($t, ['light', 'dark'], true) ? $t : '';
+}
+
+/** Anel de progresso em SVG (0..1). */
+function ring(float $p, int $size = 56, int $w = 6, string $inner = ''): string
+{
+    $p = max(0, min(1, $p));
+    $r = ($size - $w) / 2;
+    $c = 2 * M_PI * $r;
+    $off = $c * (1 - $p);
+    return '<span class="ring" style="width:' . $size . 'px;height:' . $size . 'px"><svg width="' . $size . '" height="' . $size . '" aria-hidden="true">'
+        . '<circle class="track" cx="' . ($size / 2) . '" cy="' . ($size / 2) . '" r="' . $r . '" stroke-width="' . $w . '"/>'
+        . '<circle class="val" cx="' . ($size / 2) . '" cy="' . ($size / 2) . '" r="' . $r . '" stroke-width="' . $w . '" stroke-dasharray="' . round($c, 2) . '" stroke-dashoffset="' . round($off, 2) . '" data-ring-off="' . round($off, 2) . '"/></svg>'
+        . ($inner !== '' ? '<span class="v">' . $inner . '</span>' : '') . '</span>';
+}
+
 function badge_status(string $status): string
 {
     $tone = ['active' => 'ok', 'pending' => 'warn', 'paused' => '', 'ended' => 'outline', 'rejected' => 'danger'][$status] ?? '';

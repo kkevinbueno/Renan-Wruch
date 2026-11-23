@@ -1,4 +1,5 @@
-<div class="page-head"><div><h1>Histórico de treinos</h1><p>Registros preservados mesmo quando o treino é atualizado.</p></div></div>
+<a class="btn ghost sm" href="/app/treinos"><?= icon('chevron-left', 'icon-sm') ?> Treinos</a>
+<div class="page-head mt"><div><h1>Histórico de treinos</h1><p>Registros preservados mesmo quando o treino é atualizado.</p></div></div>
 <?php if (!$rows): ?>
   <div class="card empty"><?= icon('clock', 'icon-lg') ?><h3>Nenhum treino registrado ainda</h3><p>Quando você iniciar ou concluir um treino, ele aparecerá aqui.</p></div>
 <?php else: ?>

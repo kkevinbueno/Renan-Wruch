@@ -1,7 +1,9 @@
-<div class="page-head">
-  <div><h1>Biblioteca de exercícios</h1><p><?= plural($count, 'exercício', 'exercícios') ?><?= $archived ? ' arquivados' : '' ?></p></div>
+<a class="btn ghost sm" href="/painel/mais"><?= icon('chevron-left', 'icon-sm') ?> Mais</a>
+<div class="page-head mt">
+  <div><h1>Biblioteca</h1><p><?= plural($count, 'exercício', 'exercícios') ?><?= $archived ? ' arquivados' : '' ?></p></div>
   <a class="btn" href="/painel/biblioteca/novo"><?= icon('plus', 'icon-sm') ?> Novo exercício</a>
 </div>
+<nav class="tabs"><a href="/painel/biblioteca" class="active">Exercícios</a><a href="/painel/modelos">Modelos de treino</a></nav>
 <form class="card mb" method="get">
   <div class="form-grid" style="grid-template-columns:repeat(auto-fit,minmax(170px,1fr))">
     <div class="field"><label for="lq">Buscar</label><input id="lq" type="search" name="q" value="<?= e($q) ?>" placeholder="Nome ou descrição"></div>

@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 final class TrainerStudentsController
 {
-    public const TABS = ['visao' => 'Visão geral', 'treinos' => 'Treinos', 'avaliacoes' => 'Avaliações físicas', 'autoavaliacoes' => 'Autoavaliações', 'calendario' => 'Calendário', 'mensagens' => 'Mensagens', 'dados' => 'Dados e anamnese'];
+    public const TABS = ['treinos' => 'Treinos', 'progresso' => 'Progresso', 'dados' => 'Dados', 'visao' => 'Visão geral', 'avaliacoes' => 'Avaliações físicas', 'autoavaliacoes' => 'Autoavaliações', 'calendario' => 'Calendário', 'mensagens' => 'Mensagens'];
 
     public function index(): void
     {
@@ -15,8 +15,8 @@ final class TrainerStudentsController
     public function show(int $id): void
     {
         $s = Students::findOrFail($id);
-        $tab = (string) input('aba', 'visao');
-        if (!isset(self::TABS[$tab])) $tab = 'visao';
+        $tab = (string) input('aba', 'treinos');
+        if (!isset(self::TABS[$tab])) $tab = 'treinos';
         $profile = Students::profile($id);
         $data = [
             'title' => $s['name'], 'nav' => 'students', 's' => $s, 'profile' => $profile, 'tab' => $tab, 'tabs' => self::TABS,
@@ -40,6 +40,18 @@ final class TrainerStudentsController
                     FROM workout_sessions s JOIN workouts w ON w.id = s.workout_id JOIN workout_versions v ON v.id = s.version_id
                     WHERE s.student_id = ? ORDER BY s.scheduled_date DESC, s.id DESC LIMIT 30', [$id]);
                 $data['requests'] = DB::all("SELECT r.*, w.name, w.label FROM reschedule_requests r JOIN workouts w ON w.id = r.workout_id WHERE r.student_id = ? ORDER BY r.id DESC LIMIT 10", [$id]);
+                break;
+            case 'progresso':
+                $data['sessions'] = DB::all('SELECT s.*, w.name, w.label FROM workout_sessions s JOIN workouts w ON w.id = s.workout_id WHERE s.student_id = ? ORDER BY s.scheduled_date DESC, s.id DESC LIMIT 8', [$id]);
+                $data['total'] = Progress::totalCompleted($id);
+                $data['streak'] = Progress::streak($id, today());
+                $data['heat'] = Progress::heatmap($id, today());
+                $data['series'] = Progress::selfSeries($id);
+                $data['paths'] = Progress::chartPaths($data['series']);
+                $data['selfs'] = DB::all('SELECT * FROM self_assessments WHERE student_id = ? ORDER BY ref_date DESC LIMIT 60', [$id]);
+                $data['dueDate'] = Cron::selfEvalDueDate(['id' => $id, 'self_eval_every_days' => $profile['self_eval_every_days'], 'onboarding_completed_at' => $profile['onboarding_completed_at']]);
+                $data['nutrition'] = DB::all('SELECT * FROM nutrition_logs WHERE student_id = ? ORDER BY ref_date DESC, id DESC LIMIT 40', [$id]);
+                $data['assessments'] = DB::all("SELECT * FROM physical_assessments WHERE student_id = ? AND status <> 'draft' ORDER BY submitted_at DESC", [$id]);
                 break;
             case 'avaliacoes':
                 $data['assessments'] = DB::all("SELECT * FROM physical_assessments WHERE student_id = ? AND status <> 'draft' ORDER BY submitted_at DESC", [$id]);

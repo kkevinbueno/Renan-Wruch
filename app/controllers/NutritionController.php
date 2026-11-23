@@ -17,8 +17,9 @@ final class NutritionController
             $byDay[$r['ref_date']][] = $r;
         }
         View::render('student/nutrition', [
-            'title' => 'Alimentação e hidratação', 'nav' => 'nutrition', 'date' => $date, 'byDay' => $byDay, 'meals' => self::MEALS,
+            'title' => 'Água e refeições', 'nav' => 'nutrition', 'date' => $date, 'byDay' => $byDay, 'meals' => self::MEALS,
             'waterToday' => (int) DB::val('SELECT COALESCE(SUM(water_ml),0) FROM nutrition_logs WHERE student_id = ? AND ref_date = ?', [$uid, today()]),
+            'mealsToday' => DB::all("SELECT * FROM nutrition_logs WHERE student_id = ? AND ref_date = ? AND (meal <> 'agua' OR description IS NOT NULL) ORDER BY id", [$uid, today()]),
         ]);
     }
 
@@ -32,16 +33,17 @@ final class NutritionController
         $desc = mb_substr(trim((string) input('description', '')), 0, 2000);
         $water = input_int('water_ml');
         if ($water !== null && ($water < 0 || $water > 10000)) $water = null;
+        $back = input('back') === '/app' ? '/app' : '/app/alimentacao';
         if ($desc === '' && !$water) {
             flash('error', 'Escreva algo sobre a refeição ou informe a quantidade de água.');
-            redirect('/app/alimentacao');
+            redirect($back);
         }
         DB::insert('nutrition_logs', [
             'student_id' => $uid, 'ref_date' => $date, 'meal' => $meal, 'description' => $desc ?: null, 'water_ml' => $water ?: null,
             'notes' => mb_substr(trim((string) input('notes', '')), 0, 1000) ?: null, 'created_at' => now(),
         ]);
-        flash('success', 'Registro salvo.');
-        redirect('/app/alimentacao');
+        flash('success', ($desc === '' && $water) ? '+' . $water . ' ml de água registrados.' : 'Registro salvo.');
+        redirect($back);
     }
 
     public function delete(int $id): void

@@ -136,6 +136,10 @@ final class Students
             $where[] = "u.status <> 'rejected'";
         } elseif ($f['status'] === 'rejected') {
             $where[] = "u.status = 'rejected'";
+        } elseif ($f['status'] === 'late') {
+            // Ativos com avaliação física atrasada ou pagamento recusado.
+            $where[] = "u.status = 'active' AND (p.next_assessment_on < ? OR EXISTS (SELECT 1 FROM subscriptions sb WHERE sb.student_id = u.id AND sb.status = 'payment_failed'))";
+            $params[] = today();
         }
         if (!empty($f['modality'])) {
             $where[] = '(p.modality_id = ? OR EXISTS (SELECT 1 FROM workouts w WHERE w.student_id = u.id AND w.modality_id = ? AND w.archived_at IS NULL))';

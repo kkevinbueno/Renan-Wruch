@@ -1,4 +1,5 @@
-<div class="page-head">
+<a class="btn ghost sm" href="/app/eu"><?= icon('chevron-left', 'icon-sm') ?> Eu</a>
+<div class="page-head mt">
   <div><h1>Assinatura</h1><p>Situação financeira: <span class="badge <?= e($standing['tone']) ?>"><?= e($standing['label']) ?></span></p></div>
 </div>
 

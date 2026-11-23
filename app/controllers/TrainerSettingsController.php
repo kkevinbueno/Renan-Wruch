@@ -8,8 +8,8 @@ final class TrainerSettingsController
 
     public function index(): void
     {
-        $tab = (string) input('aba', 'consultoria');
-        if (!isset(self::TABS[$tab])) $tab = 'consultoria';
+        $tab = (string) input('aba', 'conta');
+        if (!isset(self::TABS[$tab])) $tab = 'conta';
         $data = ['title' => 'Configurações', 'nav' => 'settings', 'tab' => $tab, 'tabs' => self::TABS, 's' => Settings::all(), 'user' => Auth::user()];
         if ($tab === 'modalidades') $data['modalities'] = Modalities::all(false);
         if ($tab === 'lgpd') $data['requests'] = DB::all('SELECT r.*, u.name, u.email FROM data_requests r JOIN users u ON u.id = r.user_id ORDER BY r.status = \'open\' DESC, r.id DESC LIMIT 100');

@@ -1,86 +1,105 @@
-<?php $u = Auth::user(); ?>
+<?php
+$u = Auth::user();
+$hour = (int) local_now()->format('H');
+$greet = $hour < 12 ? 'Bom dia' : ($hour < 18 ? 'Boa tarde' : 'Boa noite');
+$items = [];
+foreach ($pendingList as $p) {
+    $items[] = ['blue', 'user', 'Cadastro novo', '<b>' . e($p['name']) . '</b> quer começar · ' . e(fmt_ago($p['created_at'])),
+        '<form method="post" action="/painel/alunos/' . (int) $p['id'] . '/recusar" data-inbox-form data-confirm="Recusar o cadastro de ' . e($p['name']) . '?">' . csrf_field() . '<button class="btn secondary sm" type="submit">Recusar</button></form>'
+        . '<form method="post" action="/painel/alunos/' . (int) $p['id'] . '/aprovar" data-inbox-form>' . csrf_field() . '<button class="btn pw sm" type="submit">Aprovar</button></form>'];
+}
+foreach ($assessmentList as $a) {
+    $items[] = ['blue', 'camera', 'Avaliação física recebida', '<b>' . e($a['name']) . '</b> enviou fotos · ' . e(fmt_ago($a['submitted_at'])),
+        '<a class="btn sm" href="/painel/avaliacoes/' . (int) $a['id'] . '">Ver fotos</a>'];
+}
+foreach ($requestList as $r) {
+    $items[] = ['ok', 'repeat', 'Pedido de troca de dia', '<b>' . e($r['student_name']) . '</b> · ' . e(Workouts::title($r)) . ': ' . e(fmt_date_short($r['original_date'])) . ' → ' . e(fmt_date_short($r['requested_date'])),
+        '<form method="post" action="/painel/solicitacoes/' . (int) $r['id'] . '" data-inbox-form>' . csrf_field() . '<input type="hidden" name="decision" value="reject"><button class="btn secondary sm" type="submit">Recusar</button></form>'
+        . '<form method="post" action="/painel/solicitacoes/' . (int) $r['id'] . '" data-inbox-form>' . csrf_field() . '<input type="hidden" name="decision" value="approve"><button class="btn pw sm" type="submit">Aceitar</button></form>'];
+}
+foreach (array_slice($needsUpdate, 0, 4) as $r) {
+    $items[] = ['warn', 'refresh', 'Treino precisa de atualização', '<b>' . e($r['name']) . '</b> · ' . ($r['last_pub'] ? 'último treino ' . e(fmt_ago($r['last_pub'])) : 'ainda sem treino'),
+        '<a class="btn sm" href="/painel/alunos/' . (int) $r['id'] . '?aba=treinos">Criar treino</a>'];
+}
+foreach ($failedList as $f) {
+    $items[] = ['danger', 'card', 'Pagamento recusado', '<b>' . e($f['name']) . '</b> · a cobrança não passou',
+        '<a class="btn secondary sm" href="/painel/mensagens/' . (int) $f['student_id'] . '">Mandar mensagem</a>'];
+}
+if ($c['data_requests']) {
+    $items[] = ['', 'shield', 'Privacidade (LGPD)', plural($c['data_requests'], 'solicitação aguardando resposta', 'solicitações aguardando resposta'), '<a class="btn secondary sm" href="/painel/configuracoes?aba=lgpd">Responder</a>'];
+}
+if ($failedEmails && Auth::isDeveloper()) {
+    $items[] = ['danger', 'mail', 'E-mails com falha', plural($failedEmails, 'e-mail não enviado', 'e-mails não enviados') . ' nos últimos 7 dias', '<a class="btn secondary sm" href="/painel/configuracoes?aba=registros">Ver</a>'];
+}
+$extra = max(0, $needsUpdateCount - 4);
+?>
 <div class="page-head">
-  <div><h1>Olá, <?= e(first_name($u['name'])) ?></h1><p><?= e(fmt_date(today(), true)) ?></p></div>
-  <a class="btn secondary sm" href="/painel/alunos"><?= icon('users', 'icon-sm') ?> Meus alunos</a>
+  <div><p class="muted strong"><?= e(fmt_date(today(), true)) ?></p><h1 style="margin-top:4px"><?= e($greet) ?>, <?= e(first_name($u['name'])) ?></h1></div>
+  <a class="btn" href="/painel/alunos"><?= icon('plus', 'icon-sm') ?> Novo treino</a>
 </div>
 
 <?php if (Auth::isDeveloper()): ?>
-  <div class="callout mb"><?= icon('shield') ?><p class="small">Você está operando a interface do Renan com sua conta de desenvolvedor. Todas as ações ficam registradas com a sua identidade.</p></div>
+  <div class="callout mb"><?= icon('shield') ?><p class="small">Você está na visão do Renan com a sua conta de desenvolvedor. As ações ficam registradas com a sua identidade.</p></div>
 <?php endif; ?>
 
-<div class="stats">
-  <a class="stat" href="/painel/alunos?situacao=active"><span class="num"><?= (int) $active ?></span><span class="lbl">Alunos ativos</span></a>
-  <a class="stat<?= $c['pending'] ? ' attention' : '' ?>" href="/painel/alunos?situacao=pending"><span class="num"><?= (int) $c['pending'] ?></span><span class="lbl">Aguardando aprovação</span></a>
-  <a class="stat<?= $c['assessments'] ? ' attention' : '' ?>" href="/painel/avaliacoes"><span class="num"><?= (int) $c['assessments'] ?></span><span class="lbl">Avaliações recebidas</span></a>
-  <a class="stat<?= $c['unread'] ? ' attention' : '' ?>" href="/painel/mensagens"><span class="num"><?= (int) $c['unread'] ?></span><span class="lbl">Mensagens não lidas</span></a>
+<div class="stats enter">
+  <a class="stat" href="/painel/alunos?situacao=active"><span class="lbl">alunos ativos</span><span class="num" data-count="<?= (int) $active ?>"><?= (int) $active ?></span></a>
+  <a class="stat<?= $c['pending'] ? ' attention' : '' ?>" href="/painel/alunos?situacao=pending"><span class="lbl">aguardando aprovação</span><span class="num" data-count="<?= (int) $c['pending'] ?>"><?= (int) $c['pending'] ?></span></a>
+  <a class="stat" href="/painel/calendario"><span class="lbl">treinos feitos na semana</span><span class="num" data-count="<?= (int) $weekSessions['completed'] ?>"><?= (int) $weekSessions['completed'] ?></span></a>
+  <a class="stat block" href="/painel/financeiro"><span class="lbl">recebido no mês</span><span class="num" data-count="<?= round($received / 100) ?>" data-prefix="R$ "><?= e(money($received)) ?></span></a>
 </div>
 
-<div class="grid grid-2 section">
-  <div class="card">
-    <div class="card-head"><h3>Pendências</h3></div>
-    <?php
-      $pend = array_filter([
-        $c['pending'] ? ['/painel/alunos?situacao=pending', 'users', plural($c['pending'], 'cadastro para aprovar', 'cadastros para aprovar')] : null,
-        $c['onboarding'] ? ['/painel/alunos?situacao=active', 'clipboard', plural($c['onboarding'], 'avaliação inicial sem treino', 'avaliações iniciais sem treino')] : null,
-        $c['assessments'] ? ['/painel/avaliacoes', 'camera', plural($c['assessments'], 'avaliação física para revisar', 'avaliações físicas para revisar')] : null,
-        $c['requests'] ? ['/painel/solicitacoes', 'repeat', plural($c['requests'], 'pedido de mudança de dia', 'pedidos de mudança de dia')] : null,
-        $c['data_requests'] ? ['/painel/configuracoes?aba=lgpd', 'shield', plural($c['data_requests'], 'solicitação LGPD', 'solicitações LGPD')] : null,
-        $c['failed_payments'] ? ['/painel/financeiro?situacao=payment_failed', 'card', plural($c['failed_payments'], 'pagamento recusado', 'pagamentos recusados')] : null,
-        $failedEmails ? ['/painel/configuracoes?aba=registros', 'mail', plural($failedEmails, 'e-mail com falha de envio', 'e-mails com falha de envio')] : null,
-      ]);
-    ?>
-    <?php if (!$pend): ?><p class="muted small">Nenhuma pendência no momento.</p><?php endif; ?>
-    <div class="list">
-      <?php foreach ($pend as [$href, $ico, $label]): ?>
-        <a class="list-item" href="<?= e($href) ?>"><?= icon($ico) ?><span class="grow list-title"><?= e($label) ?></span><?= icon('chevron-right', 'icon-sm') ?></a>
+<div class="grid grid-main section">
+  <div class="card flush" style="align-self:start">
+    <div class="card-head" style="padding:18px 18px 6px"><div class="row"><h2>Caixa de entrada</h2><?php if ($items): ?><span class="badge blue"><?= count($items) + $extra ?></span><?php endif; ?></div><span class="xs muted hide-sm">Tudo que precisa de você</span></div>
+    <?php if (!$items): ?>
+      <div class="empty"><span style="font-size:2.4rem">🎉</span><h3 class="mt">Tudo em dia!</h3><p class="small">Nenhuma pendência no momento.</p></div>
+    <?php endif; ?>
+    <div class="enter">
+      <?php foreach ($items as [$tone, $ico, $kind, $desc, $actions]): ?>
+        <div class="inbox-item">
+          <span class="ico <?= e($tone) ?>"><?= icon($ico) ?></span>
+          <div class="grow"><div class="kind" style="color:var(--<?= $tone === 'blue' || $tone === '' ? 'blue' : e($tone) ?>)"><?= e($kind) ?></div><div style="margin-top:2px"><?= $desc ?></div></div>
+          <div class="actions"><?= $actions ?></div>
+        </div>
       <?php endforeach; ?>
+      <?php if ($extra): ?><div class="inbox-item"><span class="grow small muted">+ <?= plural($extra, 'aluno', 'alunos') ?> com treino para atualizar</span><a class="link small" href="/painel/alunos">Ver alunos</a></div><?php endif; ?>
     </div>
   </div>
 
-  <div class="card">
-    <div class="card-head"><h3>Treinos que precisam de atualização</h3><span class="badge"><?= (int) $needsUpdateCount ?></span></div>
-    <?php if (!$needsUpdate): ?><p class="muted small">Todos os alunos ativos têm treinos publicados nos últimos <?= (int) $staleDays ?> dias.</p><?php endif; ?>
-    <div class="list">
-      <?php foreach ($needsUpdate as $r): ?>
-        <a class="list-item" href="/painel/alunos/<?= (int) $r['id'] ?>?aba=treinos">
-          <div class="grow"><div class="list-title"><?= e($r['name']) ?></div><div class="list-sub"><?= $r['last_pub'] ? 'Último treino publicado ' . e(fmt_ago($r['last_pub'])) : 'Sem treino publicado' ?></div></div>
-          <?= icon('chevron-right', 'icon-sm') ?>
-        </a>
-      <?php endforeach; ?>
+  <div class="stack">
+    <div class="card">
+      <div class="card-head"><h3>Hoje na agenda</h3><a class="link small" href="/painel/calendario">Agenda</a></div>
+      <?php $agenda = $todayEvents ?: $weekEvents; ?>
+      <?php if (!$agenda): ?><p class="muted small">Nada agendado para esta semana.</p><?php elseif (!$todayEvents): ?><p class="xs muted mb">Nada hoje — próximos da semana:</p><?php endif; ?>
+      <div class="list day-list">
+        <?php foreach ($agenda as $ev): ?>
+          <a class="list-item" href="/painel/calendario?<?= e(http_build_query(['aluno' => $ev['student_id'], 'data' => $ev['event_date'], 'dia' => $ev['event_date']])) ?>" style="min-height:0;padding:10px 0">
+            <span class="small strong" style="width:48px;flex:none"><?= $ev['start_time'] ? e(substr($ev['start_time'], 0, 5)) : e((new DateTimeImmutable($ev['event_date']))->format('d/m')) ?></span>
+            <div class="grow"><div class="list-title small"><?= e($ev['name']) ?></div><div class="list-sub"><?= e($ev['title']) ?></div></div>
+          </a>
+        <?php endforeach; ?>
+      </div>
     </div>
-  </div>
-
-  <div class="card">
-    <div class="card-head"><h3>Esta semana</h3><a class="small" href="/painel/calendario">Calendário</a></div>
-    <p class="small muted"><?= plural($weekSessions['completed'], 'treino realizado', 'treinos realizados') ?> · <?= plural($weekSessions['missed'], 'adiado/não realizado', 'adiados/não realizados') ?></p>
-    <div class="list mt">
-      <?php if (!$weekEvents): ?><p class="muted small">Nenhuma atividade agendada até domingo.</p><?php endif; ?>
-      <?php foreach ($weekEvents as $ev): ?>
-        <a class="list-item" href="/painel/calendario?<?= e(http_build_query(['aluno' => $ev['student_id'], 'data' => $ev['event_date'], 'dia' => $ev['event_date']])) ?>">
-          <div style="width:52px" class="small"><b><?= e((new DateTimeImmutable($ev['event_date']))->format('d/m')) ?></b><div class="xs muted"><?= e($ev['start_time'] ?? '') ?></div></div>
-          <div class="grow"><div class="list-title"><?= e($ev['title']) ?></div><div class="list-sub"><?= e($ev['name']) ?> · <?= e(Schedule::typeLabel($ev['type'])) ?></div></div>
-        </a>
-      <?php endforeach; ?>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-head"><h3>Recentes</h3></div>
-    <?php if (!$pendingList && !$assessmentList && !$unreadList): ?><p class="muted small">Sem novidades.</p><?php endif; ?>
-    <div class="list">
-      <?php foreach ($pendingList as $p): ?>
-        <a class="list-item" href="/painel/alunos/<?= (int) $p['id'] ?>"><span class="dot warn"></span><div class="grow"><div class="list-title"><?= e($p['name']) ?></div><div class="list-sub">Novo cadastro · <?= e(fmt_ago($p['created_at'])) ?></div></div></a>
-      <?php endforeach; ?>
-      <?php foreach ($assessmentList as $a): ?>
-        <a class="list-item" href="/painel/avaliacoes/<?= (int) $a['id'] ?>"><span class="dot accent"></span><div class="grow"><div class="list-title"><?= e($a['name']) ?></div><div class="list-sub">Avaliação física · <?= e(fmt_ago($a['submitted_at'])) ?></div></div></a>
-      <?php endforeach; ?>
-      <?php foreach ($unreadList as $m): ?>
-        <a class="list-item" href="/painel/mensagens/<?= (int) $m['id'] ?>"><span class="dot dark"></span><div class="grow"><div class="list-title"><?= e($m['name']) ?></div><div class="list-sub truncate"><?= plural((int) $m['unread'], 'mensagem não lida', 'mensagens não lidas') ?></div></div></a>
-      <?php endforeach; ?>
+    <div class="card">
+      <div class="card-head"><h3>Alunos</h3><a class="link small" href="/painel/alunos">Ver todos</a></div>
+      <?php if (!$students): ?><p class="muted small">Nenhum aluno ativo ainda.</p><?php endif; ?>
+      <div class="list">
+        <?php foreach ($students as $s):
+          $days = $s['last_act'] ? (int) floor((Clock::time() - strtotime($s['last_act'] . ' UTC')) / 86400) : null;
+          $st = $days === null ? 'danger' : ($days <= 3 ? 'ok' : ($days <= 8 ? 'warn' : 'danger'));
+        ?>
+          <a class="list-item" href="/painel/alunos/<?= (int) $s['id'] ?>" style="min-height:0;padding:10px 0">
+            <span class="av-wrap <?= e(mod_tone((int) $s['modality_id'])) ?>"><?= avatar($s, 'sm') ?><i class="status <?= $st ?>"></i></span>
+            <div class="grow"><div class="list-title small"><?= e($s['name']) ?></div></div>
+            <span class="xs muted"><?= $days === null ? 'sem treinos' : ($days === 0 ? 'treinou hoje' : ($days === 1 ? 'ontem' : 'há ' . $days . ' dias')) ?></span>
+          </a>
+        <?php endforeach; ?>
+      </div>
     </div>
   </div>
 </div>
 
-<?php if (!$cronLast || strtotime($cronLast . ' UTC') < Clock::time() - 3600): ?>
-  <div class="callout warn section"><?= icon('alert') ?><p class="small">As tarefas agendadas (lembretes, publicações agendadas e fila de e-mails) <?= $cronLast ? 'não rodam desde ' . e(fmt_datetime($cronLast)) : 'ainda não foram configuradas' ?>. Veja <a href="/painel/configuracoes?aba=operacao">Configurações → Operação</a>.</p></div>
+<?php if (Auth::isDeveloper() && (!$cronLast || strtotime($cronLast . ' UTC') < Clock::time() - 3600)): ?>
+  <div class="callout warn section"><?= icon('alert') ?><p class="small">As tarefas agendadas <?= $cronLast ? 'não rodam desde ' . e(fmt_datetime($cronLast)) : 'ainda não foram configuradas' ?>. Veja <a href="/painel/configuracoes?aba=registros">Configurações → Técnico</a>.</p></div>
 <?php endif; ?>
