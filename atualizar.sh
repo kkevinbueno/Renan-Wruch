@@ -7,7 +7,7 @@
 # Opções:  bash atualizar.sh outro-arquivo.zip   |   bash atualizar.sh --sem-testes
 set -euo pipefail
 cd "$(dirname "$0")"
-if [ -x /usr/bin/php ] && /usr/bin/php -m 2>/dev/null | grep -qi '^gd$'; then PHP=/usr/bin/php; else PHP=php; fi
+if [ -f .devcontainer/php.sh ]; then source .devcontainer/php.sh; else PHP=php; fi
 
 TESTES=1; ZIP=""
 for a in "$@"; do

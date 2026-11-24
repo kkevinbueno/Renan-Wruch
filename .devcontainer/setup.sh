@@ -3,11 +3,16 @@
 # Pode ser rodado de novo a qualquer momento sem estragar nada.
 cd "$(dirname "$0")/.."
 
-if ! /usr/bin/php -m 2>/dev/null | grep -qi '^gd$'; then
-  echo "▶ Instalando PHP com as extensões do projeto (pode levar 1–2 minutos)..."
-  if ! { sudo apt-get update -qq >/dev/null 2>&1 || true; sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq php-cli php-gd php-sqlite3 php-mbstring php-curl php-xml unzip >/dev/null 2>&1; }; then
-    echo "  (não foi possível instalar pelo apt — seguindo com o PHP que já existe; só o redimensionamento de fotos pode não funcionar)"
-  fi
+source .devcontainer/php.sh
+if ! { _wp_ok "$PHP" && _wp_gd "$PHP"; }; then
+  echo "▶ Instalando o PHP 8.3 com as extensões do projeto (pode levar 1–2 minutos)..."
+  {
+    sudo apt-get update -qq
+    sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq software-properties-common
+    sudo add-apt-repository -y ppa:ondrej/php
+    sudo apt-get update -qq
+    sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq php8.3-cli php8.3-gd php8.3-sqlite3 php8.3-mbstring php8.3-curl php8.3-xml unzip
+  } >/dev/null 2>&1 || echo "  (não foi possível instalar o PHP 8.3 com fotos — seguindo com o PHP que já existe)"
 fi
 source .devcontainer/php.sh
 echo "▶ Usando $($PHP -v | head -1)"
