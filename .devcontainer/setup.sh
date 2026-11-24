@@ -1,14 +1,16 @@
 #!/usr/bin/env bash
-# Roda uma vez quando o Codespace é criado: instala o PHP, cria o .env de teste e prepara o banco.
-set -e
+# Prepara o Codespace: instala o PHP (se der), cria o .env de teste, prepara o banco e as contas de teste.
+# Pode ser rodado de novo a qualquer momento sem estragar nada.
 cd "$(dirname "$0")/.."
 
 if ! /usr/bin/php -m 2>/dev/null | grep -qi '^gd$'; then
-  echo "▶ Instalando PHP e extensões..."
-  sudo apt-get update -qq
-  sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq php-cli php-gd php-sqlite3 php-mbstring php-curl php-xml unzip >/dev/null
+  echo "▶ Instalando PHP com as extensões do projeto (pode levar 1–2 minutos)..."
+  if ! { sudo apt-get update -qq >/dev/null 2>&1 || true; sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq php-cli php-gd php-sqlite3 php-mbstring php-curl php-xml unzip >/dev/null 2>&1; }; then
+    echo "  (não foi possível instalar pelo apt — seguindo com o PHP que já existe; só o redimensionamento de fotos pode não funcionar)"
+  fi
 fi
 source .devcontainer/php.sh
+echo "▶ Usando $($PHP -v | head -1)"
 
 if [ ! -f .env ]; then
   echo "▶ Criando .env de teste..."
@@ -27,6 +29,7 @@ if [ ! -f .env ]; then
   } > .env
 fi
 
-$PHP cron/migrate.php
-$PHP .devcontainer/contas-teste.php
+mkdir -p storage/logs storage/uploads storage/cache storage/sessions
+$PHP cron/migrate.php || { echo "✖ Falha ao preparar o banco (veja a mensagem acima)."; exit 1; }
+$PHP .devcontainer/contas-teste.php || echo "  (contas de teste não criadas — confira APP_ENV=local e DB_DRIVER=sqlite no .env)"
 echo "✔ Ambiente pronto."
