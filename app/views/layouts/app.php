@@ -10,7 +10,7 @@ if ($u) {
         $c = Cron::trainerCounters();
         $counts = ['home' => $c['pending'] + $c['assessments'] + $c['requests'], 'chat' => $c['unread']];
     } else {
-        $counts['chat'] = (int) DB::val('SELECT COUNT(*) FROM messages WHERE student_id = ? AND read_at IS NULL AND (sender_id IS NULL OR sender_id <> ?)', [$u['id'], $u['id']]);
+        $counts['chat'] = (int) DB::val('SELECT COUNT(*) FROM messages WHERE student_id = ? AND read_at IS NULL AND deleted_at IS NULL AND (sender_id IS NULL OR sender_id <> ?)', [$u['id'], $u['id']]);
     }
 }
 // Itens principais (5) — as telas internas acendem o item a que pertencem.

@@ -11,6 +11,11 @@ $editorData = [
     'catalog' => Modalities::FIELDS,
     'save_url' => '/painel/treinos/' . $w['id'] . '/salvar',
 ];
+$libThumbs = [];
+foreach ($items as $it) {
+    if (!empty($it['exercise_id'])) $libThumbs[(int) $it['exercise_id']] = ['equipment_icon' => ExerciseLibrary::equipmentIcon($it['lib_equipment'] ?? null), 'tone' => ExerciseLibrary::muscleTone($it['lib_primary_muscle'] ?? null), 'image_url' => !empty($it['lib_image_file_id']) ? Files::url((int) $it['lib_image_file_id']) : null];
+}
+$editorData['lib_thumbs'] = (object) $libThumbs;
 $back = $isTpl ? '/painel/modelos' : '/painel/alunos/' . $w['student_id'] . '?aba=treinos';
 ?>
 <?php $who = $isTpl ? '' : first_name($student['name'] ?? 'aluno'); ?>
@@ -118,16 +123,19 @@ $back = $isTpl ? '/painel/modelos' : '/painel/alunos/' . $w['student_id'] . '?ab
   </form>
 </dialog>
 
-<dialog id="library-dialog">
-  <div class="dialog-head"><h3>Adicionar exercício</h3><button class="btn ghost sm icon-only" type="button" data-close-dialog aria-label="Fechar"><?= icon('x', 'icon-sm') ?></button></div>
+<dialog id="library-dialog" class="lib-dialog">
+  <div class="dialog-head"><h3 data-lib-title>Adicionar exercício</h3><button class="btn ghost sm icon-only" type="button" data-close-dialog aria-label="Fechar"><?= icon('x', 'icon-sm') ?></button></div>
   <div class="dialog-body">
-    <div class="row nowrap">
-      <input type="search" placeholder="Buscar exercício" data-lib-q aria-label="Buscar exercício" class="grow">
-      <label class="check small" style="white-space:nowrap"><input type="checkbox" data-lib-all> <span>Todas as modalidades</span></label>
+    <div class="lib-search"><?= icon('search', 'icon-sm') ?><input type="search" placeholder="Buscar exercício" data-lib-q aria-label="Buscar exercício"></div>
+    <div class="lib-dialog-filters">
+      <select data-lib-muscle aria-label="Grupo muscular"><option value="">Todos os músculos</option><?php foreach (ExerciseLibrary::MUSCLES as $k => $l): ?><option value="<?= e($k) ?>"><?= e($l) ?></option><?php endforeach; ?></select>
+      <select data-lib-equip aria-label="Equipamento"><option value="">Todos os equipamentos</option><?php foreach (ExerciseLibrary::EQUIPMENT as $k => $l): ?><option value="<?= e($k) ?>"><?= e($l) ?></option><?php endforeach; ?></select>
+      <label class="check small"><input type="checkbox" data-lib-fav> <span>Favoritos</span></label>
+      <label class="check small"><input type="checkbox" data-lib-all> <span>Todas as modalidades</span></label>
     </div>
-    <div class="lib-results" data-lib-results><div class="loading-block">Carregando</div></div>
+    <div class="lib-results" data-lib-results aria-live="polite"><div class="loading-block">Carregando</div></div>
     <button type="button" class="btn ghost block mt" data-lib-create><?= icon('plus', 'icon-sm') ?> <span>Criar exercício personalizado</span></button>
-    <p class="hint mt">Mudanças no treino não alteram o exercício original da biblioteca.</p>
+    <p class="hint mt">Mudanças no treino não alteram o exercício original da biblioteca. As orientações de execução e os cuidados da biblioteca aparecem para o aluno automaticamente.</p>
   </div>
 </dialog>
 
@@ -136,7 +144,9 @@ $back = $isTpl ? '/painel/modelos' : '/painel/alunos/' . $w['student_id'] . '?ab
     <div class="editor-item-head">
       <span class="drag-handle" aria-hidden="true" title="Arrastar para reordenar"><?= icon('grip', 'icon-sm') ?></span>
       <span class="exercise-num" data-num style="width:30px;height:30px"></span>
+      <span class="item-thumb" data-thumb hidden></span>
       <input class="item-name grow" data-f="name" placeholder="Nome do exercício" aria-label="Nome do exercício">
+      <button type="button" class="btn ghost sm icon-only" data-replace-item aria-label="Substituir exercício" title="Substituir por outro da biblioteca"><?= icon('repeat', 'icon-sm') ?></button>
       <button type="button" class="btn ghost sm icon-only" data-move="-1" aria-label="Mover para cima"><?= icon('arrow-up', 'icon-sm') ?></button>
       <button type="button" class="btn ghost sm icon-only" data-move="1" aria-label="Mover para baixo"><?= icon('arrow-down', 'icon-sm') ?></button>
       <button type="button" class="btn ghost sm icon-only" data-remove-item aria-label="Remover exercício"><?= icon('trash', 'icon-sm') ?></button>
@@ -144,9 +154,9 @@ $back = $isTpl ? '/painel/modelos' : '/painel/alunos/' . $w['student_id'] . '?ab
     <div class="editor-item-body">
       <div class="param-grid" data-params></div>
       <details>
-        <summary class="details-toggle"><?= icon('chevron-down', 'icon-sm') ?> Mais detalhes (instruções, vídeo, campos)</summary>
+        <summary class="details-toggle"><?= icon('chevron-down', 'icon-sm') ?> Observações, vídeo e campos</summary>
         <div class="stack mt">
-          <div class="field"><label>Instruções específicas para este aluno</label><textarea rows="2" data-f="instructions"></textarea></div>
+          <div class="field"><label>Orientação específica para este aluno</label><textarea rows="2" data-f="instructions" placeholder="Aparece para o aluno junto com a execução da biblioteca"></textarea></div>
           <div class="field"><label>Observações individuais</label><textarea rows="2" data-f="notes"></textarea></div>
           <div class="form-grid cols-2">
             <div class="field"><label>Link de vídeo (YouTube/Vimeo)</label><input type="url" data-f="video_url" placeholder="https://"></div>

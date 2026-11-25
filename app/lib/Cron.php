@@ -158,7 +158,7 @@ final class Cron
             'pending' => (int) DB::val("SELECT COUNT(*) FROM users WHERE role = 'student' AND status = 'pending' AND email_verified_at IS NOT NULL"),
             'assessments' => (int) DB::val("SELECT COUNT(*) FROM physical_assessments a JOIN users u ON u.id = a.student_id WHERE a.status = 'submitted' AND u.role = 'student'"),
             'onboarding' => (int) DB::val("SELECT COUNT(*) FROM anamneses a JOIN users u ON u.id = a.student_id WHERE a.status = 'submitted' AND u.role = 'student' AND NOT EXISTS (SELECT 1 FROM workouts w WHERE w.student_id = a.student_id AND w.archived_at IS NULL)"),
-            'unread' => (int) DB::val('SELECT COUNT(*) FROM messages m JOIN users u ON u.id = m.student_id WHERE m.read_at IS NULL AND m.sender_id = m.student_id AND u.role = \'student\''),
+            'unread' => (int) DB::val('SELECT COUNT(*) FROM messages m JOIN users u ON u.id = m.student_id WHERE m.read_at IS NULL AND m.deleted_at IS NULL AND m.sender_id = m.student_id AND u.role = \'student\''),
             'requests' => (int) DB::val("SELECT COUNT(*) FROM reschedule_requests WHERE status = 'pending'"),
             'data_requests' => (int) DB::val("SELECT COUNT(*) FROM data_requests WHERE status = 'open'"),
             'failed_payments' => (int) DB::val("SELECT COUNT(*) FROM subscriptions WHERE status = 'payment_failed'"),

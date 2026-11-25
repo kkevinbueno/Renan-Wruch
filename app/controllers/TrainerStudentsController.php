@@ -21,7 +21,7 @@ final class TrainerStudentsController
         $data = [
             'title' => $s['name'], 'nav' => 'students', 's' => $s, 'profile' => $profile, 'tab' => $tab, 'tabs' => self::TABS,
             'modalities' => Modalities::map(), 'standing' => Billing::standing($id),
-            'unread' => (int) DB::val('SELECT COUNT(*) FROM messages WHERE student_id = ? AND sender_id = ? AND read_at IS NULL', [$id, $id]),
+            'unread' => (int) DB::val('SELECT COUNT(*) FROM messages WHERE student_id = ? AND sender_id = ? AND read_at IS NULL AND deleted_at IS NULL', [$id, $id]),
         ];
         switch ($tab) {
             case 'visao':

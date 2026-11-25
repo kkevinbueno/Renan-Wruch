@@ -142,7 +142,7 @@ final class Notify
         if (count($parts) < 3) return true;
         $recipient = (int) $parts[1];
         $student = (int) $parts[2];
-        return (bool) DB::val('SELECT COUNT(*) FROM messages WHERE student_id = ? AND read_at IS NULL AND (sender_id IS NULL OR sender_id <> ?)', [$student, $recipient]);
+        return (bool) DB::val('SELECT COUNT(*) FROM messages WHERE student_id = ? AND read_at IS NULL AND deleted_at IS NULL AND (sender_id IS NULL OR sender_id <> ?)', [$student, $recipient]);
     }
 
     /** Agrupa avisos de mensagem: no máximo um e-mail por conversa a cada janela configurada. */

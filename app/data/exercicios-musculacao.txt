@@ -1,0 +1,372 @@
+# Catálogo de exercícios do Wruch Personal (importado por ExerciseLibrary::import, sem duplicar).
+# Formato: Nome em português | Nome em inglês | músculo principal | músculos secundários | equipamento | nível (i/m/a) | padrão | nota opcional
+# Músculos: peitoral costas biceps triceps ombros trapezio antebracos quadriceps posteriores gluteos panturrilhas core lombar adutores abdutores corpo-inteiro mobilidade alongamento cardio
+# Equipamentos: halteres barra anilha maquina polia smith kettlebell elastico peso-corporal banco cardio acessorios
+
+# ── Peitoral ──
+Supino reto com barra|Barbell bench press|peitoral|triceps,ombros|barra|m|supino
+Supino reto com halteres|Dumbbell bench press|peitoral|triceps,ombros|halteres|i|supino|Os halteres permitem uma amplitude um pouco maior: termine o movimento com as mãos alinhadas sobre os ombros.
+Supino reto na máquina|Machine chest press|peitoral|triceps,ombros|maquina|i|supino_maquina
+Supino reto no Smith|Smith machine bench press|peitoral|triceps,ombros|smith|i|supino|Posicione o banco para a barra descer na linha do meio do peito.
+Supino com halteres pegada neutra|Neutral-grip dumbbell press|peitoral|triceps,ombros|halteres|i|supino|Mantenha as palmas voltadas uma para a outra durante todo o movimento; costuma ser mais confortável para os ombros.
+Supino no chão com halteres|Dumbbell floor press|peitoral|triceps,ombros|halteres|i|supino|Deitado no chão: a descida termina quando os braços tocam o solo, o que limita a amplitude.
+Supino no chão com barra|Barbell floor press|peitoral|triceps,ombros|barra|m|supino|Deitado no chão dentro do rack: a descida termina quando os braços tocam o solo.
+Supino inclinado com barra|Incline barbell bench press|peitoral|ombros,triceps|barra|m|supino_inclinado
+Supino inclinado com halteres|Incline dumbbell press|peitoral|ombros,triceps|halteres|i|supino_inclinado
+Supino inclinado no Smith|Smith machine incline press|peitoral|ombros,triceps|smith|i|supino_inclinado
+Supino inclinado na máquina|Incline machine chest press|peitoral|ombros,triceps|maquina|i|supino_maquina|Na versão inclinada, o trajeto da máquina leva as manoplas em direção à parte superior do peito.
+Supino declinado com barra|Decline barbell bench press|peitoral|triceps,ombros|barra|m|supino_declinado
+Supino declinado com halteres|Decline dumbbell press|peitoral|triceps,ombros|halteres|m|supino_declinado
+Supino declinado no Smith|Smith machine decline press|peitoral|triceps,ombros|smith|m|supino_declinado
+Supino em pé no cabo|Standing cable chest press|peitoral|triceps,ombros,core|polia|i|press_pe
+Supino em pé com elástico|Band chest press|peitoral|triceps,ombros|elastico|i|press_pe
+Crucifixo reto com halteres|Flat dumbbell fly|peitoral|ombros|halteres|i|crucifixo
+Crucifixo inclinado com halteres|Incline dumbbell fly|peitoral|ombros|halteres|i|crucifixo|Ajuste o banco entre 30° e 45°.
+Crucifixo declinado com halteres|Decline dumbbell fly|peitoral|ombros|halteres|m|crucifixo|Prenda as pernas no apoio do banco declinado.
+Crucifixo com cabos no banco|Flat cable fly|peitoral|ombros|polia|i|crucifixo|Posicione o banco entre duas polias baixas: o cabo mantém a tensão também no fim do movimento.
+Crossover polia alta|High-to-low cable crossover|peitoral|ombros|polia|i|crossover|Polias no alto: as mãos se encontram à frente do quadril.
+Crossover polia média|Mid-height cable crossover|peitoral|ombros|polia|i|crossover|Polias na altura do peito: as mãos se encontram à frente do peito.
+Crossover polia baixa|Low-to-high cable crossover|peitoral|ombros|polia|i|crossover|Polias embaixo: as mãos sobem e se encontram à frente do rosto, enfatizando a parte superior do peitoral.
+Crucifixo unilateral no cabo|Single-arm cable fly|peitoral|ombros,core|polia|i|crossover|Um braço por vez, com a mão livre na cintura e o tronco sem girar.
+Voador (peck deck)|Pec deck fly|peitoral|ombros|maquina|i|peck_deck
+Flexão de braços|Push-up|peitoral|triceps,ombros,core|peso-corporal|i|flexao|Mãos um pouco além da largura dos ombros.
+Flexão com joelhos apoiados|Knee push-up|peitoral|triceps,ombros|peso-corporal|i|flexao|Apoie os joelhos no chão e mantenha a linha reta dos joelhos à cabeça. Boa opção para iniciar.
+Flexão inclinada (mãos elevadas)|Incline push-up|peitoral|triceps,ombros|banco|i|flexao|Mãos apoiadas no banco ou banco de step: quanto mais alto o apoio, mais fácil.
+Flexão declinada (pés elevados)|Decline push-up|peitoral|ombros,triceps|banco|m|flexao|Pés sobre o banco: aumenta a ênfase na parte superior do peitoral e nos ombros.
+Flexão com pegada aberta|Wide-grip push-up|peitoral|ombros|peso-corporal|i|flexao|Mãos bem além da largura dos ombros, sem deixar os cotovelos passarem de 70° do tronco.
+Flexão com elástico|Banded push-up|peitoral|triceps,ombros|elastico|m|flexao|Passe o elástico pelas costas, segurando as pontas sob as mãos: a resistência aumenta no topo.
+Flexão com anilha nas costas|Weighted push-up|peitoral|triceps,ombros,core|anilha|a|flexao|Peça ajuda para posicionar a anilha entre as escápulas.
+Mergulho nas paralelas com ênfase no peitoral|Chest dip|peitoral|triceps,ombros|peso-corporal|m|mergulho|Incline o tronco à frente e deixe os cotovelos um pouco afastados.
+Mergulho assistido na máquina|Assisted dip|peitoral|triceps,ombros|maquina|i|mergulho|O contrapeso da máquina reduz a carga: quanto maior o contrapeso, mais fácil.
+Pullover com halter|Dumbbell pullover|peitoral|costas,triceps|halteres|m|pullover
+Pullover com barra W|EZ-bar pullover|peitoral|costas,triceps|barra|m|pullover
+
+# ── Costas ──
+Puxada frontal pegada aberta|Wide-grip lat pulldown|costas|biceps,ombros|polia|i|puxada|Pegada pronada, um pouco além da largura dos ombros.
+Puxada frontal pegada fechada (triângulo)|Close-grip lat pulldown|costas|biceps|polia|i|puxada|Use o triângulo (pegada neutra e fechada).
+Puxada supinada|Reverse-grip lat pulldown|costas|biceps|polia|i|puxada|Palmas voltadas para você, mãos na largura dos ombros.
+Puxada pegada neutra|Neutral-grip lat pulldown|costas|biceps|polia|i|puxada|Use a barra com pegada paralela, palmas voltadas uma para a outra.
+Puxada unilateral na polia|Single-arm lat pulldown|costas|biceps|polia|i|puxada|Um braço por vez, com a manopla: permite maior amplitude e corrigir diferenças entre os lados.
+Puxada na máquina articulada|Machine lat pulldown|costas|biceps|maquina|i|puxada
+Barra fixa pronada|Pull-up|costas|biceps,antebracos,core|peso-corporal|a|barra_fixa|Palmas para frente, mãos um pouco além da largura dos ombros.
+Barra fixa supinada|Chin-up|costas|biceps|peso-corporal|m|barra_fixa|Palmas voltadas para você, mãos na largura dos ombros.
+Barra fixa pegada neutra|Neutral-grip pull-up|costas|biceps|peso-corporal|m|barra_fixa|Use as pegadas paralelas da barra.
+Barra fixa assistida na máquina|Assisted pull-up|costas|biceps|maquina|i|barra_fixa|O contrapeso da máquina reduz a carga: quanto maior o contrapeso, mais fácil.
+Barra fixa assistida com elástico|Band-assisted pull-up|costas|biceps|elastico|m|barra_fixa|Prenda o elástico na barra e apoie um pé ou joelho nele.
+Barra fixa negativa|Negative pull-up|costas|biceps|peso-corporal|m|barra_fixa|Comece em cima (subindo com ajuda de um banco) e desça o mais devagar possível, em 3 a 5 segundos.
+Barra fixa com carga|Weighted pull-up|costas|biceps,antebracos|acessorios|a|barra_fixa|Use cinto de carga ou colete. Só progrida para esta variação com boa técnica na barra sem carga.
+Remada curvada pegada pronada|Bent-over barbell row|costas|biceps,ombros,lombar|barra|m|remada_curvada
+Remada curvada pegada supinada|Underhand barbell row|costas|biceps,lombar|barra|m|remada_curvada|Palmas para cima: os cotovelos ficam mais próximos do corpo.
+Remada Pendlay|Pendlay row|costas|biceps,lombar|barra|a|remada_curvada|Tronco paralelo ao chão: a barra parte do chão e volta a ele a cada repetição.
+Remada curvada com halteres|Bent-over dumbbell row|costas|biceps,ombros,lombar|halteres|m|remada_curvada
+Remada cavalinho (barra T)|T-bar row|costas|biceps,lombar|barra|m|remada_curvada|Use a barra apoiada no canto (ou o equipamento próprio) com o triângulo.
+Remada no Smith|Smith machine row|costas|biceps,lombar|smith|m|remada_curvada
+Remada unilateral com halter (serrote)|One-arm dumbbell row|costas|biceps,ombros|halteres|i|remada_unilateral
+Remada unilateral com kettlebell|One-arm kettlebell row|costas|biceps|kettlebell|i|remada_unilateral
+Remada Meadows|Meadows row|costas|biceps,antebracos|barra|a|remada_unilateral|Com a barra apoiada no canto (landmine), fique de lado e segure a ponta da barra com pegada pronada.
+Remada baixa na polia (triângulo)|Seated cable row|costas|biceps,ombros|polia|i|remada
+Remada baixa pegada aberta|Wide-grip seated cable row|costas|ombros,biceps|polia|i|remada|Barra reta com pegada aberta: os cotovelos vão mais para fora, enfatizando a parte alta das costas.
+Remada unilateral na polia|Single-arm cable row|costas|biceps|polia|i|remada
+Remada sentada na máquina|Seated machine row|costas|biceps,ombros|maquina|i|remada
+Remada articulada na máquina|Plate-loaded machine row|costas|biceps,ombros|maquina|i|remada
+Remada com peito apoiado no banco inclinado|Chest-supported dumbbell row|costas|biceps,ombros|halteres|i|remada|Deite de bruços no banco inclinado: o apoio no peito elimina o balanço do tronco.
+Remada seal com barra|Seal row|costas|biceps|barra|m|remada|Deitado de bruços em um banco alto, puxe a barra até tocar a parte de baixo do banco.
+Remada invertida (australiana)|Inverted row|costas|biceps,core|peso-corporal|i|remada|Pendurado sob uma barra baixa, corpo reto: puxe o peito até a barra. Quanto mais inclinado o corpo, mais fácil.
+Remada com elástico|Band row|costas|biceps|elastico|i|remada
+Pulldown com braços estendidos (corda)|Straight-arm cable pulldown|costas|triceps,core|polia|i|pulldown_reto
+Pullover na máquina|Machine pullover|costas|peitoral,triceps|maquina|i|pulldown_reto
+Levantamento terra convencional|Conventional deadlift|gluteos|posteriores,lombar,costas,quadriceps,trapezio,antebracos|barra|a|terra|Pés na largura do quadril, mãos por fora das pernas.
+Levantamento terra sumô|Sumo deadlift|gluteos|adutores,quadriceps,posteriores,lombar|barra|a|terra|Base bem afastada com as pontas dos pés para fora; mãos por dentro das pernas.
+Levantamento terra com halteres|Dumbbell deadlift|gluteos|posteriores,quadriceps,lombar|halteres|i|terra
+Levantamento terra com barra hexagonal|Trap bar deadlift|gluteos|quadriceps,posteriores,lombar,trapezio|barra|m|terra|Fique dentro da barra hexagonal e segure as pegadas laterais: a carga fica alinhada ao corpo.
+Levantamento terra com kettlebell|Kettlebell deadlift|gluteos|posteriores,quadriceps|kettlebell|i|terra|O kettlebell fica entre os pés; boa variação para aprender o movimento.
+Levantamento terra parcial (rack pull)|Rack pull|costas|trapezio,gluteos,lombar|barra|m|terra|A barra parte dos apoios do rack, na altura dos joelhos ou logo abaixo.
+Hiperextensão lombar no banco romano|Back extension|lombar|gluteos,posteriores|banco|i|hiperextensao
+Hiperextensão com carga|Weighted back extension|lombar|gluteos,posteriores|anilha|m|hiperextensao|Segure a anilha junto ao peito.
+Extensão lombar na máquina|Machine back extension|lombar|gluteos|maquina|i|hiperextensao
+Good morning com barra|Barbell good morning|posteriores|lombar,gluteos|barra|a|good_morning
+Superman (extensão no solo)|Superman|lombar|gluteos,costas|peso-corporal|i|superman
+
+# ── Ombros ──
+Desenvolvimento militar com barra em pé|Standing overhead press|ombros|triceps,trapezio,core|barra|m|desenvolvimento
+Desenvolvimento sentado com barra|Seated barbell shoulder press|ombros|triceps|barra|m|desenvolvimento|Use o banco com encosto vertical; a barra desce até a altura do queixo, à frente do rosto.
+Desenvolvimento sentado com halteres|Seated dumbbell shoulder press|ombros|triceps|halteres|i|desenvolvimento
+Desenvolvimento em pé com halteres|Standing dumbbell shoulder press|ombros|triceps,core|halteres|m|desenvolvimento
+Desenvolvimento Arnold|Arnold press|ombros|triceps|halteres|m|desenvolvimento|Comece com as palmas voltadas para você e gire os punhos durante a subida, terminando com as palmas para frente.
+Desenvolvimento na máquina|Machine shoulder press|ombros|triceps|maquina|i|desenvolvimento
+Desenvolvimento no Smith|Smith machine shoulder press|ombros|triceps|smith|i|desenvolvimento
+Desenvolvimento com kettlebell|Kettlebell overhead press|ombros|triceps,core|kettlebell|m|desenvolvimento|O kettlebell fica apoiado sobre o antebraço na posição inicial.
+Push press|Push press|ombros|triceps,quadriceps,core|barra|a|desenvolvimento|Faça um pequeno agachamento e use o impulso das pernas para iniciar a subida da barra.
+Landmine press|Landmine press|ombros|peitoral,triceps,core|barra|i|desenvolvimento|Com uma ponta da barra apoiada no canto, empurre a outra ponta para cima e à frente. Costuma ser confortável para os ombros.
+Flexão pike|Pike push-up|ombros|triceps|peso-corporal|m|flexao|Eleve o quadril formando um V invertido e desça a cabeça em direção ao chão entre as mãos.
+Flexão vertical na parede (parada de mão)|Wall handstand push-up|ombros|triceps,core|peso-corporal|a|desenvolvimento|Em parada de mão com os pés apoiados na parede, desça a cabeça até perto do chão e empurre de volta. Exige boa força e controle.
+Elevação lateral com halteres|Dumbbell lateral raise|ombros|trapezio|halteres|i|elevacao_lateral
+Elevação lateral na polia|Cable lateral raise|ombros|trapezio|polia|i|elevacao_lateral|Polia baixa, cabo passando à frente do corpo: um braço por vez.
+Elevação lateral na máquina|Machine lateral raise|ombros|trapezio|maquina|i|elevacao_lateral
+Elevação lateral com elástico|Band lateral raise|ombros|trapezio|elastico|i|elevacao_lateral|Pise no elástico e segure as pontas ao lado do corpo.
+Elevação lateral deitado no banco inclinado|Lying incline lateral raise|ombros||halteres|m|elevacao_lateral|Deitado de lado no banco inclinado, um braço por vez: a tensão começa logo no início do movimento.
+Elevação frontal com halteres|Dumbbell front raise|ombros|peitoral|halteres|i|elevacao_frontal
+Elevação frontal com barra|Barbell front raise|ombros|peitoral|barra|i|elevacao_frontal
+Elevação frontal com anilha|Plate front raise|ombros|peitoral|anilha|i|elevacao_frontal|Segure a anilha pelas laterais.
+Elevação frontal na polia|Cable front raise|ombros|peitoral|polia|i|elevacao_frontal|De costas para a polia baixa, cabo entre as pernas.
+Crucifixo inverso com halteres|Bent-over reverse dumbbell fly|ombros|trapezio,costas|halteres|i|crucifixo_inverso
+Crucifixo inverso na máquina (voador inverso)|Reverse pec deck|ombros|trapezio,costas|maquina|i|crucifixo_inverso|Sente-se de frente para o encosto e segure as manoplas com os braços à frente.
+Crucifixo inverso na polia|Cable reverse fly|ombros|trapezio,costas|polia|i|crucifixo_inverso|Cruze os cabos das polias altas e abra os braços até a linha do corpo.
+Face pull na polia|Cable face pull|ombros|trapezio,costas|polia|i|face_pull
+Face pull com elástico|Band face pull|ombros|trapezio,costas|elastico|i|face_pull
+Remada alta com barra|Barbell upright row|ombros|trapezio,biceps|barra|m|remada_alta
+Remada alta na polia|Cable upright row|ombros|trapezio,biceps|polia|i|remada_alta
+Remada alta com halteres|Dumbbell upright row|ombros|trapezio,biceps|halteres|i|remada_alta
+Rotação externa de ombro na polia|Cable external rotation|ombros||polia|i|rotacao_ombro|Polia na altura do cotovelo, do lado oposto ao braço que trabalha: gire para fora.
+Rotação interna de ombro na polia|Cable internal rotation|ombros|peitoral|polia|i|rotacao_ombro|Polia na altura do cotovelo, do mesmo lado do braço que trabalha: gire para dentro.
+Rotação externa com halter deitado de lado|Side-lying dumbbell external rotation|ombros||halteres|i|rotacao_ombro|Deitado de lado, cotovelo de cima apoiado no corpo: gire o antebraço para cima.
+Rotação externa com elástico|Band external rotation|ombros||elastico|i|rotacao_ombro
+
+# ── Trapézio ──
+Encolhimento com barra|Barbell shrug|trapezio|antebracos|barra|i|encolhimento
+Encolhimento com halteres|Dumbbell shrug|trapezio|antebracos|halteres|i|encolhimento
+Encolhimento no Smith|Smith machine shrug|trapezio|antebracos|smith|i|encolhimento
+Encolhimento na máquina|Machine shrug|trapezio|antebracos|maquina|i|encolhimento
+Encolhimento na polia|Cable shrug|trapezio|antebracos|polia|i|encolhimento
+Encolhimento com barra hexagonal|Trap bar shrug|trapezio|antebracos|barra|i|encolhimento
+
+# ── Bíceps ──
+Rosca direta com barra|Barbell curl|biceps|antebracos|barra|i|rosca
+Rosca direta com barra W|EZ-bar curl|biceps|antebracos|barra|i|rosca|A barra W deixa os punhos em posição mais natural.
+Rosca alternada com halteres|Alternating dumbbell curl|biceps|antebracos|halteres|i|rosca|Um braço por vez, girando a palma para cima durante a subida.
+Rosca simultânea com halteres|Dumbbell curl|biceps|antebracos|halteres|i|rosca
+Rosca martelo|Hammer curl|biceps|antebracos|halteres|i|rosca|Palmas voltadas uma para a outra durante todo o movimento: enfatiza braquial e braquiorradial.
+Rosca martelo na polia com corda|Cable rope hammer curl|biceps|antebracos|polia|i|rosca|Polia baixa com corda, pegada neutra.
+Rosca Scott com barra W|EZ-bar preacher curl|biceps||barra|i|rosca_scott
+Rosca Scott com halter|Dumbbell preacher curl|biceps||halteres|i|rosca_scott|Um braço por vez.
+Rosca Scott na máquina|Machine preacher curl|biceps||maquina|i|rosca_scott
+Rosca concentrada|Concentration curl|biceps||halteres|i|rosca_concentrada
+Rosca na polia baixa|Cable curl|biceps|antebracos|polia|i|rosca
+Rosca bayesiana na polia|Bayesian cable curl|biceps||polia|m|rosca|De costas para a polia baixa, com o braço atrás do corpo: o bíceps trabalha bem alongado no início.
+Rosca inclinada com halteres|Incline dumbbell curl|biceps||halteres|m|rosca|Sentado no banco inclinado a 45°–60°, braços pendurados atrás da linha do tronco.
+Rosca spider|Spider curl|biceps||halteres|m|rosca|Deitado de bruços no banco inclinado, braços pendurados à frente do banco.
+Rosca 21|21s barbell curl|biceps|antebracos|barra|m|rosca|Sete repetições na metade de baixo, sete na metade de cima e sete completas, sem pausa.
+Rosca com elástico|Band curl|biceps|antebracos|elastico|i|rosca|Pise no meio do elástico e segure as pontas.
+Rosca Zottman|Zottman curl|biceps|antebracos|halteres|m|rosca|Suba com as palmas para cima, gire no topo e desça com as palmas para baixo.
+Rosca na máquina|Machine biceps curl|biceps||maquina|i|rosca_scott
+Rosca com kettlebell|Kettlebell curl|biceps|antebracos|kettlebell|i|rosca
+Rosca arrastada (drag curl)|Barbell drag curl|biceps||barra|m|rosca|Suba a barra arrastando-a junto ao corpo, levando os cotovelos para trás.
+
+# ── Tríceps ──
+Tríceps na polia com barra reta|Straight-bar triceps pushdown|triceps||polia|i|triceps_polia
+Tríceps na polia com corda|Rope triceps pushdown|triceps||polia|i|triceps_polia|No fim do movimento, separe as pontas da corda para os lados.
+Tríceps na polia com barra V|V-bar triceps pushdown|triceps||polia|i|triceps_polia
+Tríceps na polia pegada invertida|Reverse-grip triceps pushdown|triceps|antebracos|polia|i|triceps_polia|Palmas voltadas para cima.
+Tríceps unilateral na polia|Single-arm cable pushdown|triceps||polia|i|triceps_polia|Com manopla, um braço por vez.
+Tríceps na máquina|Machine triceps extension|triceps||maquina|i|triceps_polia
+Tríceps com elástico|Band triceps pushdown|triceps||elastico|i|triceps_polia|Prenda o elástico em um ponto alto.
+Tríceps testa com barra W|EZ-bar skull crusher|triceps||barra|m|triceps_testa
+Tríceps testa com halteres|Dumbbell lying triceps extension|triceps||halteres|i|triceps_testa|Palmas voltadas uma para a outra.
+Tríceps francês unilateral com halter|One-arm overhead dumbbell extension|triceps||halteres|i|triceps_frances
+Tríceps francês com halter (dois braços)|Seated overhead dumbbell extension|triceps||halteres|i|triceps_frances|Segure um halter com as duas mãos pela parte interna da anilha.
+Tríceps francês na polia com corda|Overhead cable triceps extension|triceps||polia|i|triceps_frances|De costas para a polia, com a corda atrás da cabeça e o tronco levemente inclinado.
+Tríceps francês com barra W|EZ-bar overhead triceps extension|triceps||barra|m|triceps_frances
+Tríceps coice com halter|Dumbbell triceps kickback|triceps||halteres|i|triceps_coice
+Tríceps coice na polia|Cable triceps kickback|triceps||polia|i|triceps_coice
+Supino fechado com barra|Close-grip bench press|triceps|peitoral,ombros|barra|m|supino|Mãos na largura dos ombros e cotovelos próximos ao tronco.
+Supino fechado no Smith|Smith machine close-grip press|triceps|peitoral,ombros|smith|i|supino|Mãos na largura dos ombros e cotovelos próximos ao tronco.
+Mergulho no banco|Bench dip|triceps|peitoral,ombros|banco|i|mergulho_banco
+Mergulho nas paralelas com ênfase no tríceps|Triceps dip|triceps|peitoral,ombros|peso-corporal|m|mergulho|Tronco vertical e cotovelos apontando para trás.
+Flexão diamante|Diamond push-up|triceps|peitoral,ombros|peso-corporal|m|flexao|Mãos juntas sob o peito, formando um losango com polegares e indicadores.
+
+# ── Antebraços ──
+Rosca de punho com barra|Barbell wrist curl|antebracos||barra|i|rosca_punho
+Rosca de punho com halteres|Dumbbell wrist curl|antebracos||halteres|i|rosca_punho
+Rosca de punho inversa|Reverse barbell wrist curl|antebracos||barra|i|rosca_punho|Palmas para baixo: trabalha os extensores do punho.
+Rosca inversa com barra|Reverse barbell curl|antebracos|biceps|barra|i|rosca|Pegada pronada (palmas para baixo).
+Rosca inversa na polia|Reverse cable curl|antebracos|biceps|polia|i|rosca|Pegada pronada (palmas para baixo) na barra reta.
+Rolo de punho|Wrist roller|antebracos||acessorios|i|rosca_punho|Com os braços estendidos à frente, enrole a corda até a carga subir e desenrole devagar.
+Suspensão na barra fixa|Dead hang|antebracos|costas,ombros|peso-corporal|i|isometria_pegada|Fique pendurado com os braços estendidos.
+Pinça com anilhas|Plate pinch|antebracos||anilha|i|isometria_pegada|Segure duas anilhas lisas unidas, só com os dedos e o polegar.
+Caminhada do fazendeiro|Farmer's walk|antebracos|trapezio,core,gluteos|halteres|i|carregamento
+
+# ── Quadríceps ──
+Agachamento livre com barra|Barbell back squat|quadriceps|gluteos,adutores,lombar,core|barra|m|agachamento|A barra fica apoiada sobre o trapézio, com as mãos firmes na barra.
+Agachamento frontal com barra|Barbell front squat|quadriceps|gluteos,core|barra|a|agachamento|A barra fica apoiada na frente dos ombros, cotovelos altos; o tronco fica mais vertical.
+Agachamento no Smith|Smith machine squat|quadriceps|gluteos|smith|i|agachamento|Posicione os pés um pouco à frente da linha da barra.
+Agachamento goblet com kettlebell|Kettlebell goblet squat|quadriceps|gluteos,core|kettlebell|i|agachamento|Segure o kettlebell junto ao peito: ajuda a manter o tronco ereto.
+Agachamento goblet com halter|Dumbbell goblet squat|quadriceps|gluteos,core|halteres|i|agachamento|Segure o halter na vertical junto ao peito.
+Agachamento com halteres|Dumbbell squat|quadriceps|gluteos|halteres|i|agachamento|Halteres ao lado do corpo, braços estendidos.
+Agachamento livre sem carga|Bodyweight squat|quadriceps|gluteos|peso-corporal|i|agachamento|Braços à frente para ajudar no equilíbrio.
+Agachamento sumô com halter|Dumbbell sumo squat|quadriceps|adutores,gluteos|halteres|i|agachamento|Base bem afastada, pontas dos pés para fora e halter pendurado entre as pernas.
+Agachamento no banco (box squat)|Box squat|quadriceps|gluteos,posteriores|barra|m|agachamento|Sente-se rapidamente no banco ou caixa sem relaxar o tronco e suba.
+Agachamento com pausa|Pause squat|quadriceps|gluteos,core|barra|a|agachamento|Pare de 2 a 3 segundos no fundo, sem relaxar, antes de subir.
+Agachamento overhead|Overhead squat|quadriceps|ombros,core,gluteos|barra|a|agachamento|Barra acima da cabeça com pegada aberta e braços estendidos. Exige muita mobilidade de ombros e tornozelos.
+Agachamento com elástico|Banded squat|quadriceps|gluteos|elastico|i|agachamento|Pise no elástico e passe-o pelos ombros.
+Agachamento búlgaro com halteres|Dumbbell Bulgarian split squat|quadriceps|gluteos,adutores|halteres|m|afundo|Apoie o peito do pé de trás em um banco.
+Agachamento búlgaro no Smith|Smith machine Bulgarian split squat|quadriceps|gluteos|smith|m|afundo|Apoie o peito do pé de trás em um banco.
+Agachamento hack na máquina|Hack squat|quadriceps|gluteos|maquina|i|hack
+Agachamento pêndulo na máquina|Pendulum squat|quadriceps|gluteos|maquina|i|hack
+Agachamento com cinto na máquina (belt squat)|Belt squat|quadriceps|gluteos|maquina|i|hack|A carga fica presa a um cinto no quadril, poupando a coluna.
+Agachamento sissy|Sissy squat|quadriceps||peso-corporal|a|sissy
+Agachamento com salto|Jump squat|quadriceps|gluteos,panturrilhas|peso-corporal|m|salto
+Agachamento isométrico na parede|Wall sit|quadriceps|gluteos|peso-corporal|i|isometria
+Leg press 45°|45° leg press|quadriceps|gluteos,posteriores|maquina|i|leg_press
+Leg press horizontal|Horizontal leg press|quadriceps|gluteos|maquina|i|leg_press
+Leg press unilateral|Single-leg leg press|quadriceps|gluteos|maquina|m|leg_press|Uma perna por vez, com o pé no centro da plataforma.
+Cadeira extensora|Leg extension|quadriceps||maquina|i|extensora
+Cadeira extensora unilateral|Single-leg extension|quadriceps||maquina|i|extensora|Uma perna por vez.
+Afundo com halteres|Dumbbell lunge|quadriceps|gluteos,adutores|halteres|i|afundo
+Afundo com barra|Barbell lunge|quadriceps|gluteos,adutores|barra|m|afundo|A barra fica apoiada sobre o trapézio.
+Afundo reverso|Reverse lunge|quadriceps|gluteos|halteres|i|afundo|Dê o passo para trás: costuma ser mais confortável para os joelhos.
+Afundo caminhando (passada)|Walking lunge|quadriceps|gluteos,adutores|halteres|m|afundo|Avance alternando as pernas a cada passo.
+Afundo no Smith|Smith machine split squat|quadriceps|gluteos|smith|i|afundo
+Afundo estático sem carga|Bodyweight split squat|quadriceps|gluteos|peso-corporal|i|afundo|Mantenha os pés parados e suba e desça no mesmo lugar.
+Afundo lateral|Lateral lunge|quadriceps|adutores,gluteos|halteres|m|afundo|Dê um passo largo para o lado e flexione só o joelho da perna que deu o passo, com a outra estendida.
+Subida no banco com halteres|Dumbbell step-up|quadriceps|gluteos|halteres|i|step_up
+Subida no banco com barra|Barbell step-up|quadriceps|gluteos|barra|m|step_up|A barra fica apoiada sobre o trapézio.
+
+# ── Posteriores de coxa ──
+Mesa flexora|Lying leg curl|posteriores|panturrilhas|maquina|i|flexora
+Cadeira flexora|Seated leg curl|posteriores|panturrilhas|maquina|i|flexora
+Flexora em pé unilateral|Standing leg curl|posteriores|panturrilhas|maquina|i|flexora
+Flexora com elástico|Band leg curl|posteriores||elastico|i|flexora|Deitado de bruços, com o elástico preso aos tornozelos e a um ponto fixo.
+Flexora com bola suíça|Stability ball leg curl|posteriores|gluteos,core|acessorios|m|flexora|Deitado de costas, calcanhares sobre a bola e quadril elevado: role a bola em direção aos glúteos.
+Flexão nórdica|Nordic hamstring curl|posteriores||peso-corporal|a|nordica
+Stiff com barra|Barbell stiff-leg deadlift|posteriores|gluteos,lombar|barra|m|stiff
+Levantamento terra romeno com barra|Barbell Romanian deadlift|posteriores|gluteos,lombar|barra|m|stiff|O quadril vai bem para trás e os joelhos ficam um pouco mais flexionados que no stiff.
+Stiff com halteres|Dumbbell stiff-leg deadlift|posteriores|gluteos,lombar|halteres|i|stiff
+Levantamento terra romeno com halteres|Dumbbell Romanian deadlift|posteriores|gluteos,lombar|halteres|i|stiff|O quadril vai bem para trás e os joelhos ficam levemente flexionados.
+Stiff unilateral com halter|Single-leg Romanian deadlift|posteriores|gluteos,core|halteres|m|stiff|Apoiado em uma perna, leve a outra para trás alinhada ao tronco. Exige equilíbrio.
+Stiff no Smith|Smith machine Romanian deadlift|posteriores|gluteos|smith|i|stiff
+Stiff com kettlebell|Kettlebell Romanian deadlift|posteriores|gluteos|kettlebell|i|stiff
+Pull-through na polia|Cable pull-through|gluteos|posteriores|polia|i|stiff|De costas para a polia baixa, segure a corda entre as pernas e estenda o quadril para frente.
+
+# ── Glúteos ──
+Elevação pélvica com barra|Barbell hip thrust|gluteos|posteriores,quadriceps|barra|m|elevacao_pelvica|Use proteção acolchoada na barra.
+Elevação pélvica na máquina|Machine hip thrust|gluteos|posteriores|maquina|i|elevacao_pelvica
+Elevação pélvica no Smith|Smith machine hip thrust|gluteos|posteriores|smith|i|elevacao_pelvica
+Elevação pélvica unilateral|Single-leg hip thrust|gluteos|posteriores,core|peso-corporal|m|elevacao_pelvica|Uma perna apoiada e a outra elevada.
+Ponte de glúteo no solo|Glute bridge|gluteos|posteriores|peso-corporal|i|elevacao_pelvica|Deitado no chão, com os pés apoiados.
+Ponte de glúteo com barra|Barbell glute bridge|gluteos|posteriores|barra|i|elevacao_pelvica|Deitado no chão, com a barra sobre o quadril.
+Ponte de glúteo com elástico|Banded glute bridge|gluteos|abdutores|elastico|i|elevacao_pelvica|Elástico acima dos joelhos: mantenha os joelhos afastados durante todo o movimento.
+Glúteo na polia (coice)|Cable glute kickback|gluteos|posteriores|polia|i|coice_gluteo|Tornozeleira presa à polia baixa.
+Glúteo na máquina (coice)|Machine glute kickback|gluteos|posteriores|maquina|i|coice_gluteo
+Glúteo em quatro apoios com caneleira|Ankle-weight donkey kick|gluteos|posteriores|acessorios|i|coice_gluteo
+Glúteo em quatro apoios com elástico|Banded donkey kick|gluteos|posteriores|elastico|i|coice_gluteo
+Hiperextensão com ênfase em glúteo|Glute-focused back extension|gluteos|posteriores,lombar|banco|i|hiperextensao|Pés levemente virados para fora e coluna um pouco arredondada para tirar a ênfase da lombar.
+Cadeira abdutora|Hip abduction machine|abdutores|gluteos|maquina|i|abducao
+Abdução de quadril na polia|Cable hip abduction|abdutores|gluteos|polia|i|abducao|Em pé, de lado para a polia baixa, tornozeleira na perna de fora.
+Abdução de quadril deitado de lado|Side-lying hip abduction|abdutores|gluteos|peso-corporal|i|abducao
+Abdução sentada com elástico|Seated banded hip abduction|abdutores|gluteos|elastico|i|abducao|Sentado, elástico acima dos joelhos: afaste os joelhos.
+Concha com elástico (clamshell)|Banded clamshell|abdutores|gluteos|elastico|i|abducao|Deitado de lado, joelhos flexionados e pés juntos: abra o joelho de cima sem girar o quadril.
+Caminhada lateral com elástico|Lateral band walk|abdutores|gluteos|elastico|i|caminhada_elastico
+Cadeira adutora|Hip adduction machine|adutores||maquina|i|aducao
+Adução de quadril na polia|Cable hip adduction|adutores||polia|i|aducao|Em pé, de lado para a polia baixa, tornozeleira na perna de dentro.
+Adução de quadril deitado de lado|Side-lying hip adduction|adutores||peso-corporal|i|aducao|Deitado de lado, cruze a perna de cima à frente e eleve a de baixo.
+Prancha de Copenhague|Copenhagen plank|adutores|core|banco|a|prancha|Prancha lateral com a perna de cima apoiada no banco (no joelho para facilitar ou no tornozelo para dificultar).
+
+# ── Panturrilhas ──
+Panturrilha em pé na máquina|Standing calf raise machine|panturrilhas||maquina|i|panturrilha
+Panturrilha sentada (sóleo)|Seated calf raise|panturrilhas||maquina|i|panturrilha|Com os joelhos flexionados, a ênfase vai para o sóleo.
+Panturrilha no leg press|Leg press calf raise|panturrilhas||maquina|i|panturrilha|Apoie só a ponta dos pés na borda da plataforma, joelhos estendidos e travas de segurança acionadas.
+Panturrilha no Smith|Smith machine calf raise|panturrilhas||smith|i|panturrilha|Use um degrau ou anilha sob a ponta dos pés.
+Panturrilha unilateral com halter|Single-leg dumbbell calf raise|panturrilhas||halteres|i|panturrilha|Uma perna por vez no degrau, segurando um apoio com a mão livre.
+Panturrilha em pé no degrau|Bodyweight calf raise|panturrilhas||peso-corporal|i|panturrilha
+Panturrilha burrinho|Donkey calf raise|panturrilhas||maquina|i|panturrilha|Tronco inclinado à frente com o quadril sob o apoio da máquina.
+
+# ── Abdômen e core ──
+Prancha frontal|Front plank|core|ombros,gluteos|peso-corporal|i|prancha
+Prancha lateral|Side plank|core|abdutores,ombros|peso-corporal|i|prancha|Apoie um antebraço e a lateral do pé; mantenha o quadril alinhado ao corpo.
+Prancha com elevação de perna|Plank with leg lift|core|gluteos|peso-corporal|m|prancha|Eleve uma perna de cada vez sem girar o quadril.
+Prancha com toque no ombro|Plank shoulder tap|core|ombros|peso-corporal|m|prancha|Em prancha alta, toque o ombro oposto alternando as mãos, sem balançar o quadril.
+Prancha alta|High plank|core|ombros|peso-corporal|i|prancha|Apoio nas mãos com os braços estendidos.
+Abdominal supra (crunch)|Crunch|core||peso-corporal|i|abdominal
+Abdominal na polia ajoelhado|Kneeling cable crunch|core||polia|i|abdominal|Ajoelhado de frente para a polia alta, com a corda junto à cabeça: flexione o tronco levando os cotovelos em direção às coxas.
+Abdominal na máquina|Machine crunch|core||maquina|i|abdominal
+Abdominal com anilha|Weighted crunch|core||anilha|m|abdominal|Segure a anilha junto ao peito.
+Abdominal no banco declinado|Decline sit-up|core||banco|m|abdominal|Prenda os pés no apoio e suba o tronco inteiro de forma controlada.
+Abdominal remador|Tuck-up|core||peso-corporal|m|abdominal|Sentado com o tronco inclinado para trás, aproxime joelhos e peito ao mesmo tempo.
+Abdominal canivete (V-up)|V-up|core||peso-corporal|a|abdominal|Eleve tronco e pernas estendidas ao mesmo tempo, tentando tocar os pés com as mãos.
+Abdominal bicicleta|Bicycle crunch|core||peso-corporal|i|abdominal|Aproxime o cotovelo do joelho oposto, alternando os lados com controle.
+Abdominal infra (reverse crunch)|Reverse crunch|core||peso-corporal|i|elevacao_pernas|Joelhos flexionados: enrole a pelve tirando o quadril do chão.
+Elevação de pernas deitado|Lying leg raise|core||peso-corporal|i|elevacao_pernas
+Elevação de pernas na barra fixa|Hanging leg raise|core|antebracos|peso-corporal|a|elevacao_pernas|Pendurado na barra, eleve as pernas estendidas.
+Elevação de joelhos na barra fixa|Hanging knee raise|core|antebracos|peso-corporal|m|elevacao_pernas|Pendurado na barra, eleve os joelhos flexionados.
+Elevação de pernas no apoio paralelo|Captain's chair leg raise|core||maquina|i|elevacao_pernas|Antebraços no apoio e costas encostadas no encosto.
+Roda abdominal|Ab wheel rollout|core|ombros,costas|acessorios|a|roda_abdominal
+Rollout com bola suíça|Stability ball rollout|core|ombros|acessorios|m|roda_abdominal|Antebraços sobre a bola.
+Russian twist|Russian twist|core||anilha|m|rotacao_core|Sentado com o tronco inclinado para trás, gire segurando a anilha ou um halter.
+Lenhador na polia de cima para baixo|High-to-low cable woodchop|core|ombros|polia|m|rotacao_core
+Lenhador na polia de baixo para cima|Low-to-high cable woodchop|core|ombros|polia|m|rotacao_core
+Pallof press na polia|Cable Pallof press|core||polia|i|antirotacao
+Pallof press com elástico|Band Pallof press|core||elastico|i|antirotacao
+Dead bug|Dead bug|core||peso-corporal|i|estabilizacao|Deitado de costas, braços para cima e joelhos a 90°: estenda o braço e a perna opostos sem tirar a lombar do chão.
+Perdigueiro (bird dog)|Bird dog|core|lombar,gluteos|peso-corporal|i|estabilizacao|Em quatro apoios, estenda o braço e a perna opostos, mantenha 2 segundos e troque.
+Canoa (hollow hold)|Hollow body hold|core||peso-corporal|m|estabilizacao|Deitado, eleve ombros e pernas mantendo a lombar colada ao chão e sustente.
+Escalador (mountain climber)|Mountain climber|core|ombros,quadriceps|peso-corporal|i|escalador
+Caminhada com carga unilateral (suitcase carry)|Suitcase carry|core|antebracos,trapezio|halteres|m|carregamento|Carga em apenas uma das mãos: o desafio é não inclinar o tronco para o lado.
+
+# ── Corpo inteiro ──
+Kettlebell swing|Kettlebell swing|corpo-inteiro|gluteos,posteriores,core|kettlebell|m|swing
+Kettlebell swing unilateral|One-arm kettlebell swing|corpo-inteiro|gluteos,posteriores,core|kettlebell|a|swing|Uma mão no kettlebell: o tronco precisa resistir à rotação.
+Levantamento turco (turkish get-up)|Turkish get-up|corpo-inteiro|ombros,core,gluteos|kettlebell|a|tgu
+Thruster com barra|Barbell thruster|corpo-inteiro|quadriceps,ombros,triceps|barra|a|thruster
+Thruster com halteres|Dumbbell thruster|corpo-inteiro|quadriceps,ombros,triceps|halteres|m|thruster
+Arremesso na parede (wall ball)|Wall ball|corpo-inteiro|quadriceps,ombros|acessorios|m|thruster|Use a bola de wall ball e um alvo na parede.
+Power clean|Power clean|corpo-inteiro|posteriores,gluteos,trapezio,quadriceps|barra|a|olimpico|A barra sai do chão e é recebida apoiada na frente dos ombros, em um agachamento parcial.
+Hang power clean|Hang power clean|corpo-inteiro|posteriores,gluteos,trapezio|barra|a|olimpico|A barra parte da altura das coxas (posição suspensa).
+Arranco unilateral com halter (dumbbell snatch)|Dumbbell snatch|corpo-inteiro|ombros,gluteos,posteriores|halteres|a|olimpico|O halter sai do chão e termina acima da cabeça em um só movimento.
+Clean com kettlebell|Kettlebell clean|corpo-inteiro|gluteos,ombros,antebracos|kettlebell|m|olimpico|O kettlebell termina apoiado sobre o antebraço, junto ao peito.
+
+# ── Mobilidade ──
+Mobilidade de quadril 90/90|90/90 hip switch|mobilidade|gluteos,adutores|peso-corporal|i|mobilidade|Sentado com as duas pernas flexionadas a 90°, gire os joelhos de um lado para o outro.
+Rotação torácica em quatro apoios|Quadruped thoracic rotation|mobilidade|costas|peso-corporal|i|mobilidade|Mão atrás da cabeça: gire abrindo o cotovelo para o teto, acompanhando com o olhar.
+Gato e camelo|Cat-cow|mobilidade|lombar|peso-corporal|i|mobilidade|Em quatro apoios, alterne arredondar e estender a coluna, vértebra por vértebra.
+Mobilidade de tornozelo com joelho à parede|Knee-to-wall ankle mobilization|mobilidade|panturrilhas|peso-corporal|i|mobilidade|Leve o joelho em direção à parede sem tirar o calcanhar do chão.
+Passagem de ombros com bastão|Shoulder pass-through|mobilidade|ombros|acessorios|i|mobilidade|Com bastão ou elástico em pegada aberta, leve os braços estendidos da frente para trás do corpo.
+Livro aberto (rotação torácica deitado)|Open book stretch|mobilidade|peitoral,costas|peso-corporal|i|mobilidade|Deitado de lado com os joelhos flexionados, abra o braço de cima até o outro lado.
+Círculos controlados de quadril (CARs)|Hip controlled articular rotations|mobilidade|gluteos|peso-corporal|i|mobilidade|Em quatro apoios ou em pé, descreva o maior círculo possível com o joelho, sem mover o tronco.
+Círculos controlados de ombro (CARs)|Shoulder controlled articular rotations|mobilidade|ombros|peso-corporal|i|mobilidade|Com o braço estendido, descreva o maior círculo possível, devagar, sem mover o tronco.
+Agachamento profundo sustentado|Deep squat hold|mobilidade|quadriceps,adutores|peso-corporal|i|mobilidade|Fique no fundo do agachamento com os calcanhares no chão, empurrando os joelhos para fora com os cotovelos.
+Maior alongamento do mundo|World's greatest stretch|mobilidade|gluteos,posteriores,costas|peso-corporal|i|mobilidade|Em afundo, apoie a mão de dentro no chão, leve o cotovelo ao pé e gire o tronco abrindo o braço para o teto.
+Deslizamento na parede (wall slide)|Wall slide|mobilidade|ombros,trapezio|peso-corporal|i|mobilidade|Costas e antebraços na parede: deslize os braços para cima sem perder o contato.
+Mobilidade de punho em quatro apoios|Quadruped wrist mobility|mobilidade|antebracos|peso-corporal|i|mobilidade|Apoie as mãos em diferentes direções e leve o corpo à frente e para trás com cuidado.
+Caminhada de mãos (inchworm)|Inchworm|mobilidade|posteriores,core,ombros|peso-corporal|i|mobilidade|Em pé, apoie as mãos no chão e caminhe com elas até a prancha; volte caminhando com os pés.
+Agachamento cossaco|Cossack squat|mobilidade|adutores,quadriceps,gluteos|peso-corporal|m|mobilidade|Base bem afastada: desça para um lado mantendo a outra perna estendida com a ponta do pé para cima.
+
+# ── Alongamento ──
+Alongamento de peitoral na parede|Wall chest stretch|alongamento|peitoral,ombros|peso-corporal|i|alongamento|Apoie o antebraço na parede ou batente na altura do ombro e gire o tronco para o lado oposto.
+Alongamento de dorsal|Lat stretch|alongamento|costas|peso-corporal|i|alongamento|Segure em um apoio à frente e leve o quadril para trás, deixando o tronco descer entre os braços.
+Alongamento de ombro com braço cruzado|Cross-body shoulder stretch|alongamento|ombros|peso-corporal|i|alongamento|Leve o braço estendido à frente do peito e puxe-o suavemente com a outra mão.
+Alongamento de tríceps acima da cabeça|Overhead triceps stretch|alongamento|triceps|peso-corporal|i|alongamento|Leve a mão às costas por cima do ombro e puxe o cotovelo suavemente com a outra mão.
+Alongamento de bíceps na parede|Wall biceps stretch|alongamento|biceps,peitoral|peso-corporal|i|alongamento|Apoie a palma da mão na parede atrás do corpo, braço estendido, e gire o tronco para o lado oposto.
+Alongamento de flexores do punho|Wrist flexor stretch|alongamento|antebracos|peso-corporal|i|alongamento|Braço estendido à frente com a palma para cima: puxe os dedos para baixo com a outra mão.
+Alongamento de trapézio|Upper trapezius stretch|alongamento|trapezio|peso-corporal|i|alongamento|Incline a cabeça para o lado, levando a orelha em direção ao ombro, com o ombro oposto relaxado para baixo.
+Alongamento de quadríceps em pé|Standing quad stretch|alongamento|quadriceps|peso-corporal|i|alongamento|Segure o pé atrás do corpo, joelhos alinhados e quadril levemente para frente.
+Alongamento de posteriores sentado|Seated hamstring stretch|alongamento|posteriores|peso-corporal|i|alongamento|Sentado com uma perna estendida, incline o tronco à frente a partir do quadril, coluna longa.
+Alongamento de posteriores deitado com faixa|Supine hamstring stretch with strap|alongamento|posteriores|elastico|i|alongamento|Deitado de costas, eleve a perna estendida segurando uma faixa ou elástico no pé.
+Alongamento de flexores do quadril ajoelhado|Kneeling hip flexor stretch|alongamento|quadriceps|peso-corporal|i|alongamento|Em afundo com o joelho de trás no chão, contraia o glúteo desse lado e leve o quadril levemente à frente.
+Alongamento de glúteo (figura 4)|Figure-4 glute stretch|alongamento|gluteos|peso-corporal|i|alongamento|Deitado, cruze o tornozelo sobre o joelho oposto e puxe a perna de baixo em direção ao peito.
+Alongamento de adutores (borboleta)|Butterfly stretch|alongamento|adutores|peso-corporal|i|alongamento|Sentado com as solas dos pés unidas, deixe os joelhos descerem e incline levemente o tronco.
+Alongamento de panturrilha na parede|Wall calf stretch|alongamento|panturrilhas|peso-corporal|i|alongamento|Mãos na parede, perna de trás estendida e calcanhar no chão.
+Alongamento de sóleo|Soleus stretch|alongamento|panturrilhas|peso-corporal|i|alongamento|Como o alongamento de panturrilha, mas com o joelho de trás flexionado.
+Postura da criança|Child's pose|alongamento|lombar,costas|peso-corporal|i|alongamento|Ajoelhado, sente-se sobre os calcanhares e leve os braços à frente, com a testa no chão.
+Joelhos ao peito|Knees-to-chest stretch|alongamento|lombar|peso-corporal|i|alongamento|Deitado de costas, abrace os joelhos e traga-os em direção ao peito.
+Torção deitado|Supine spinal twist|alongamento|lombar,gluteos|peso-corporal|i|alongamento|Deitado de costas, leve os joelhos flexionados para um lado mantendo os ombros no chão.
+Alongamento de abdômen (cobra)|Cobra stretch|alongamento|core|peso-corporal|i|alongamento|De bruços, apoie as mãos sob os ombros e eleve o peito, mantendo o quadril no chão.
+
+# ── Cardio ──
+Esteira (caminhada)|Treadmill walk|cardio|quadriceps,panturrilhas|cardio|i|cardio_maquina
+Esteira (corrida)|Treadmill run|cardio|quadriceps,posteriores,panturrilhas|cardio|m|cardio_maquina
+Esteira (caminhada inclinada)|Incline treadmill walk|cardio|gluteos,panturrilhas|cardio|i|cardio_maquina|Aumente a inclinação e mantenha passos firmes, sem se apoiar nas laterais.
+Bicicleta ergométrica vertical|Upright stationary bike|cardio|quadriceps|cardio|i|cardio_maquina|Ajuste o banco para o joelho ficar levemente flexionado com o pedal embaixo.
+Bicicleta ergométrica horizontal|Recumbent bike|cardio|quadriceps|cardio|i|cardio_maquina|Com encosto: boa opção para quem tem desconforto na lombar.
+Bike de spinning|Indoor cycling bike|cardio|quadriceps,gluteos|cardio|m|cardio_maquina
+Elíptico (transport)|Elliptical trainer|cardio|quadriceps,gluteos|cardio|i|cardio_maquina
+Remo ergômetro|Rowing machine|cardio|costas,quadriceps,gluteos|cardio|m|cardio_maquina|Sequência da remada: pernas, tronco e braços; na volta, braços, tronco e pernas.
+Simulador de escada|Stair climber|cardio|gluteos,quadriceps,panturrilhas|cardio|m|cardio_maquina
+Air bike|Air bike|cardio|quadriceps,ombros|cardio|m|cardio_maquina|A resistência aumenta com a velocidade: pernas e braços trabalham juntos.
+Ski ergômetro|Ski erg|cardio|costas,triceps,core|cardio|m|cardio_maquina
+Corda de pular|Jump rope|cardio|panturrilhas|acessorios|m|pular_corda
+Polichinelo|Jumping jack|cardio|panturrilhas,ombros|peso-corporal|i|cardio_livre
+Corrida estacionária (skipping)|High knees|cardio|quadriceps,core|peso-corporal|i|cardio_livre|Corra no lugar elevando os joelhos até a altura do quadril.
+Burpee|Burpee|cardio|peitoral,quadriceps,core|peso-corporal|m|burpee
+Corda naval|Battle rope|cardio|ombros,core|acessorios|m|corda_naval
+Arremesso de bola no chão (slam ball)|Medicine ball slam|cardio|core,ombros,costas|acessorios|i|slam
+Empurrar trenó|Sled push|cardio|quadriceps,gluteos,panturrilhas|acessorios|m|treno

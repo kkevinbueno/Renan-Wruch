@@ -84,6 +84,7 @@ Router::post('/app/assinatura/{id}/cancelar', [SubscriptionController::class, 'c
 // Chat (compartilhado entre interfaces; autorização por conversa no controlador)
 Router::get('/api/mensagens/{id}', [ChatController::class, 'poll'], ['auth']);
 Router::post('/api/mensagens/{id}', [ChatController::class, 'send'], ['auth']);
+Router::post('/api/mensagens/{id}/{mid}/apagar', [ChatController::class, 'delete'], ['auth']);
 Router::get('/api/contadores', [ChatController::class, 'counters'], ['auth']);
 
 // ───────────── Interface do Renan ─────────────
@@ -117,7 +118,9 @@ Router::get('/painel/biblioteca', [LibraryController::class, 'index'], ['trainer
 Router::get('/api/biblioteca', [LibraryController::class, 'search'], ['trainer']);
 Router::get('/painel/biblioteca/novo', [LibraryController::class, 'form'], ['trainer']);
 Router::post('/painel/biblioteca', [LibraryController::class, 'store'], ['trainer']);
-Router::get('/painel/biblioteca/{id}', [LibraryController::class, 'form'], ['trainer']);
+Router::get('/painel/biblioteca/{id}', [LibraryController::class, 'show'], ['trainer']);
+Router::get('/painel/biblioteca/{id}/editar', [LibraryController::class, 'form'], ['trainer']);
+Router::post('/painel/biblioteca/{id}/favorito', [LibraryController::class, 'favorite'], ['trainer']);
 Router::post('/painel/biblioteca/{id}', [LibraryController::class, 'store'], ['trainer']);
 Router::post('/painel/biblioteca/{id}/duplicar', [LibraryController::class, 'duplicate'], ['trainer']);
 Router::post('/painel/biblioteca/{id}/arquivar', [LibraryController::class, 'archive'], ['trainer']);

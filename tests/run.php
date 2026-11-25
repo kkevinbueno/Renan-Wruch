@@ -257,7 +257,8 @@ $r = $renan->post('/painel/biblioteca', ['name' => 'Agachamento livre', 'modalit
 $exId = (int) dbv("SELECT id FROM exercises WHERE name = 'Agachamento livre'");
 ok($exId > 0, 'exercício criado na biblioteca');
 $renan->get('/painel');
-eq(count($renan->req('GET', '/api/biblioteca?q=agach', null, ['Accept' => 'application/json'])['json']['results'] ?? []), 1, 'busca na biblioteca');
+$found = array_column($renan->req('GET', '/api/biblioteca?q=agach', null, ['Accept' => 'application/json'])['json']['results'] ?? [], 'id');
+ok(in_array($exId, $found, true) && count($found) > 1, 'busca na biblioteca encontra o exercício personalizado e os do catálogo');
 $musc = (int) dbv("SELECT id FROM modalities WHERE slug = 'musculacao'");
 $r = $renan->post("/painel/alunos/{$anaId}/treinos", ['label' => 'Treino A', 'name' => 'Força inferior', 'modality_id' => $musc, 'weekdays' => [0, 1, 2, 3, 4, 5, 6]]);
 preg_match('~/painel/treinos/(\d+)~', $r['location'], $m);
@@ -619,7 +620,7 @@ eq((int) dbv("SELECT COUNT(*) FROM workout_items i JOIN workout_versions v ON v.
 $renan->post("/painel/treinos/{$wid}/duplicar", ['student_id' => $anaId]);
 ok((int) dbv('SELECT COUNT(*) FROM workouts WHERE student_id = ? AND is_template = 0', [$anaId]) === 2, 'treino duplicado');
 $renan->post("/painel/biblioteca/{$exId}/duplicar");
-ok((int) dbv("SELECT COUNT(*) FROM exercises WHERE name LIKE 'Agachamento livre%'") === 2, 'exercício duplicado na biblioteca');
+ok((int) dbv("SELECT COUNT(*) FROM exercises WHERE name = 'Agachamento livre (cópia)' AND is_custom = 1") === 1, 'exercício duplicado na biblioteca');
 $v1 = (int) dbv('SELECT id FROM workout_versions WHERE workout_id = ? AND version_no = 1', [$wid]);
 $studentPages = ['/app', '/app/treinos', "/app/treinos/{$wid}", '/app/historico', '/app/autoavaliacao', '/app/autoavaliacao?data=' . date_add_days(today(), -1), '/app/alimentacao', '/app/avaliacoes', "/app/avaliacoes/{$aid}", '/app/calendario', '/app/calendario?ver=mes', '/app/mensagens', '/app/perfil', '/app/assinatura', "/app/sessao/{$sid}", '/app/eu', '/app/progresso', "/app/sessao/{$sid}/concluido"];
 foreach ($studentPages as $pg) {

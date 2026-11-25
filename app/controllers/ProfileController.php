@@ -122,7 +122,7 @@ final class ProfileController
             'alimentacao' => DB::all('SELECT ref_date, meal, description, water_ml, notes FROM nutrition_logs WHERE student_id = ? ORDER BY ref_date', [$uid]),
             'avaliacoes_fisicas' => DB::all('SELECT due_on, submitted_at, measurements, student_notes, trainer_comments, trainer_guidance, status FROM physical_assessments WHERE student_id = ?', [$uid]),
             'treinos_realizados' => DB::all('SELECT s.scheduled_date, s.status, s.notes, w.name FROM workout_sessions s JOIN workouts w ON w.id = s.workout_id WHERE s.student_id = ? ORDER BY s.scheduled_date', [$uid]),
-            'mensagens' => DB::all('SELECT created_at, CASE WHEN sender_id = student_id THEN \'aluno\' ELSE \'treinador\' END AS remetente, body FROM messages WHERE student_id = ? ORDER BY id', [$uid]),
+            'mensagens' => DB::all('SELECT created_at, CASE WHEN sender_id = student_id THEN \'aluno\' ELSE \'treinador\' END AS remetente, body FROM messages WHERE student_id = ? AND deleted_at IS NULL ORDER BY id', [$uid]),
             'arquivos' => DB::all('SELECT id, context, kind, original_name, created_at FROM files WHERE student_id = ? AND deleted_at IS NULL', [$uid]),
             'pagamentos' => DB::all('SELECT amount_cents, status, method, paid_at FROM payments WHERE student_id = ?', [$uid]),
         ];

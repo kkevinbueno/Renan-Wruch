@@ -99,7 +99,13 @@ final class Workouts
 
     public static function items(int $versionId): array
     {
-        return DB::all('SELECT * FROM workout_items WHERE version_id = ? ORDER BY position, id', [$versionId]);
+        // Junta os dados da biblioteca (imagem, orientações, cuidados e vídeo) para exibição;
+        // o que o Renan escreveu no item continua tendo prioridade.
+        return DB::all('SELECT i.*, e.description AS lib_description, e.instructions AS lib_instructions, e.mistakes AS lib_mistakes,
+                e.image_file_id AS lib_image_file_id, e.video_url AS lib_video_url, e.video_file_id AS lib_video_file_id,
+                e.video_status AS lib_video_status, e.equipment AS lib_equipment, e.primary_muscle AS lib_primary_muscle
+            FROM workout_items i LEFT JOIN exercises e ON e.id = i.exercise_id
+            WHERE i.version_id = ? ORDER BY i.position, i.id', [$versionId]);
     }
 
     /** Conteúdo mais recente (cópia de trabalho ou publicada). */
@@ -263,6 +269,21 @@ final class Workouts
     }
 
     /** Itens decodificados para exibição/registro. */
+    /**
+     * Vídeo a exibir: o do item (definido pelo Renan) ou, na falta dele, o da biblioteca
+     * quando o vídeo da biblioteca já foi revisado. @return array{0:?string,1:?int} [embed, fileId]
+     */
+    public static function itemVideo(array $it): array
+    {
+        if (!empty($it['video_file_id'])) return [null, (int) $it['video_file_id']];
+        if ($embed = video_embed_url($it['video_url'] ?? null)) return [$embed, null];
+        if (($it['lib_video_status'] ?? '') === 'ok') {
+            if (!empty($it['lib_video_file_id'])) return [null, (int) $it['lib_video_file_id']];
+            if ($embed = video_embed_url($it['lib_video_url'] ?? null)) return [$embed, null];
+        }
+        return [null, null];
+    }
+
     public static function decodeItems(array $items, array $modality): array
     {
         foreach ($items as &$it) {
