@@ -10,9 +10,14 @@ final class Settings
         'brand_name' => 'Wruch Personal',
         'trainer_name' => 'Renan Wruch',
         'accent_color' => '#b4daf3',
-        'public_headline' => 'Consultoria esportiva online com acompanhamento individual',
-        'public_intro' => 'Treinos planejados para a sua rotina, o seu esporte e o seu objetivo, com acompanhamento próximo do Renan pela plataforma.',
+        'public_headline' => 'Treino sob medida, online e presencial',
+        'public_intro' => 'Treinos planejados para a sua rotina, o seu esporte e o seu objetivo. Acompanhamento de verdade, online e perto de você.',
         'public_about' => '',
+        'trainer_formation' => '',          // vazio = não aparece no site
+        'trainer_cref' => '',
+        'trainer_city' => '',
+        'public_testimonials' => '',        // um por linha: "Nome | depoimento" (só depoimentos reais)
+        'response_hours' => '24',           // prazo de resposta às dúvidas exibido ao aluno
         'public_photo_file_id' => '',
         'contact_whatsapp' => '5519998089854',
         'contact_whatsapp_label' => '+55 19 99808-9854',
