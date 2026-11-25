@@ -50,7 +50,6 @@ final class TrainerStudentsController
                 $data['paths'] = Progress::chartPaths($data['series']);
                 $data['selfs'] = DB::all('SELECT * FROM self_assessments WHERE student_id = ? ORDER BY ref_date DESC LIMIT 60', [$id]);
                 $data['dueDate'] = Cron::selfEvalDueDate(['id' => $id, 'self_eval_every_days' => $profile['self_eval_every_days'], 'onboarding_completed_at' => $profile['onboarding_completed_at']]);
-                $data['nutrition'] = DB::all('SELECT * FROM nutrition_logs WHERE student_id = ? ORDER BY ref_date DESC, id DESC LIMIT 40', [$id]);
                 $data['assessments'] = DB::all("SELECT * FROM physical_assessments WHERE student_id = ? AND status <> 'draft' ORDER BY submitted_at DESC", [$id]);
                 break;
             case 'avaliacoes':
@@ -59,7 +58,6 @@ final class TrainerStudentsController
             case 'autoavaliacoes':
                 $data['selfs'] = DB::all('SELECT * FROM self_assessments WHERE student_id = ? ORDER BY ref_date DESC LIMIT 60', [$id]);
                 $data['dueDate'] = Cron::selfEvalDueDate(['id' => $id, 'self_eval_every_days' => $profile['self_eval_every_days'], 'onboarding_completed_at' => $profile['onboarding_completed_at']]);
-                $data['nutrition'] = DB::all('SELECT * FROM nutrition_logs WHERE student_id = ? ORDER BY ref_date DESC, id DESC LIMIT 40', [$id]);
                 break;
             case 'calendario':
                 $view = input('ver') === 'mes' ? 'month' : 'week';

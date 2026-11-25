@@ -65,7 +65,7 @@ final class LibraryController
         $pages = max(1, (int) ceil($total / self::PER_PAGE));
         $page = min($pages, max(1, (int) input('p', 1)));
         $rows = DB::all("SELECT e.*, m.name AS modality_name, m.slug AS modality_slug FROM exercises e JOIN modalities m ON m.id = e.modality_id
-            WHERE {$where} ORDER BY m.sort_order, e.name LIMIT " . self::PER_PAGE . ' OFFSET ' . (($page - 1) * self::PER_PAGE), $params);
+            WHERE {$where} ORDER BY " . ($f['musculo'] !== '' ? 'CASE WHEN e.primary_muscle = ' . DB::pdo()->quote($f['musculo']) . ' THEN 0 ELSE 1 END, ' : '') . "m.sort_order, e.name LIMIT " . self::PER_PAGE . ' OFFSET ' . (($page - 1) * self::PER_PAGE), $params);
         $query = array_filter([
             'q' => $f['q'], 'modalidade' => $f['mod'], 'musculo' => $f['musculo'], 'equipamento' => $f['equipamento'],
             'nivel' => $f['nivel'], 'video' => $f['video'], 'favoritos' => $f['favoritos'] ? 1 : null,
@@ -90,7 +90,8 @@ final class LibraryController
         [$where, $params] = self::where($f);
         $favs = self::favoriteIds();
         $rows = DB::all("SELECT e.*, m.name AS modality_name, m.fields AS modality_fields FROM exercises e JOIN modalities m ON m.id = e.modality_id
-            WHERE {$where} ORDER BY " . ($favs ? 'CASE WHEN e.id IN (' . implode(',', $favs) . ') THEN 0 ELSE 1 END, ' : '') . 'e.name LIMIT 60', $params);
+            WHERE {$where} ORDER BY " . ($favs ? 'CASE WHEN e.id IN (' . implode(',', $favs) . ') THEN 0 ELSE 1 END, ' : '')
+            . ($f['musculo'] !== '' ? 'CASE WHEN e.primary_muscle = ' . DB::pdo()->quote($f['musculo']) . ' THEN 0 ELSE 1 END, ' : '') . 'e.name LIMIT 60', $params);
         json_out(['ok' => true, 'results' => array_map(fn($r) => self::toJson($r, $favs), $rows)]);
     }
 

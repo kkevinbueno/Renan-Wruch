@@ -145,6 +145,120 @@
   scrim?.addEventListener('click', closeMenu);
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMenu(); });
 
+  /* ---------- Menu lateral do Renan: seção "Mais" em acordeão ----------
+     Estado único: { more: aberto?, section: qual subseção está aberta (ou null) }.
+     A tela é sempre redesenhada a partir desse estado, então nenhuma subseção fica aberta por engano. */
+  $$('[data-nav-accordion]').forEach((root) => {
+    const moreBtn = $('[data-nav-more]', root);
+    const morePanel = document.getElementById(moreBtn.getAttribute('aria-controls'));
+    const sectionBtns = $$('[data-nav-section]', root);
+    const initial = sectionBtns.find((b) => b.getAttribute('aria-expanded') === 'true');
+    const state = { more: moreBtn.getAttribute('aria-expanded') === 'true', section: initial ? initial.dataset.navSection : null };
+    const setPanel = (btn, panel, open, animate) => {
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      if (!animate || reduceMotion()) { panel.hidden = !open; panel.classList.toggle('open', open); return; }
+      if (open) {
+        panel.hidden = false;
+        requestAnimationFrame(() => panel.classList.add('open'));
+      } else {
+        panel.classList.remove('open');
+        const done = () => { if (btn.getAttribute('aria-expanded') === 'false') panel.hidden = true; };
+        panel.addEventListener('transitionend', done, { once: true });
+        setTimeout(done, 260); // garante o fechamento mesmo sem evento de transição
+      }
+    };
+    const render = (animate = true) => {
+      if (!state.more) state.section = null; // fechar "Mais" recolhe todas as subseções
+      setPanel(moreBtn, morePanel, state.more, animate);
+      sectionBtns.forEach((b) => {
+        const panel = document.getElementById(b.getAttribute('aria-controls'));
+        setPanel(b, panel, state.more && state.section === b.dataset.navSection, animate);
+      });
+    };
+    moreBtn.addEventListener('click', () => { state.more = !state.more; render(); });
+    sectionBtns.forEach((b) => b.addEventListener('click', () => {
+      const k = b.dataset.navSection;
+      state.section = state.section === k ? null : k; // mesma subseção: fecha; outra: abre e fecha a anterior
+      render();
+    }));
+    render(false);
+    // Links com âncora (ex.: Financeiro > Planos) marcam o item atual.
+    const markHash = () => {
+      const anchors = $$('a.sub', root).filter((a) => { const u = new URL(a.href, location.href); return u.hash && u.pathname === location.pathname; });
+      anchors.forEach((a, i) => {
+        const u = new URL(a.href, location.href);
+        const on = u.hash === location.hash || (!location.hash && i === 0);
+        a.classList.toggle('active', on);
+        if (on) a.setAttribute('aria-current', 'location'); else a.removeAttribute('aria-current');
+      });
+    };
+    markHash();
+    window.addEventListener('hashchange', markHash);
+  });
+
+  /* ---------- Filtros que recarregam a página: estado de carregamento ---------- */
+  $$('[data-filter-form]').forEach((f) => {
+    const region = $('[data-filter-region]');
+    const busy = () => region?.classList.add('is-busy');
+    f.addEventListener('submit', busy);
+    $$('select[data-autosubmit]', f).forEach((el) => el.addEventListener('change', busy));
+    $$('a', f).forEach((a) => a.addEventListener('click', busy));
+  });
+  if ($('[data-filter-region]')) $$('.tabs a').forEach((a) => a.addEventListener('click', () => $('[data-filter-region]').classList.add('is-busy')));
+  window.addEventListener('pageshow', () => $$('.is-busy').forEach((r) => r.classList.toggle('is-busy', false)));
+
+  /* ---------- Gráfico de barras: dica ao passar o mouse ou tocar ---------- */
+  $$('[data-chart]').forEach((fig) => {
+    const tip = $('[data-chart-tip]', fig);
+    const clear = () => $$('.bar-hit.on', fig).forEach((x) => x.classList.toggle('on', false));
+    const show = (g) => {
+      clear();
+      if (!g) { tip.hidden = true; return; }
+      g.classList.add('on');
+      tip.textContent = g.dataset.tip;
+      tip.hidden = false;
+      const r = fig.getBoundingClientRect();
+      const b = g.getBoundingClientRect();
+      tip.style.left = `${Math.min(Math.max(b.left + b.width / 2 - r.left, 60), r.width - 60)}px`;
+    };
+    fig.addEventListener('pointermove', (e) => show(e.target.closest('.bar-hit')));
+    fig.addEventListener('pointerleave', () => show(null));
+  });
+
+  /* ---------- Mostrar / ocultar senha (aplicado a todo campo de senha) ---------- */
+  const enhancePassword = (input) => {
+    if (input.dataset.pwReady) return;
+    input.dataset.pwReady = '1';
+    if (!input.id) input.id = `pw-${Math.random().toString(36).slice(2, 8)}`;
+    const wrap = document.createElement('span');
+    wrap.className = 'pw-field';
+    input.parentNode.insertBefore(wrap, input);
+    wrap.appendChild(input);
+    const btn = document.createElement('button');
+    btn.type = 'button'; // nunca envia o formulário
+    btn.className = 'pw-toggle';
+    btn.setAttribute('aria-controls', input.id);
+    const sync = () => {
+      const shown = input.type === 'text';
+      btn.innerHTML = ICON(shown ? 'eye-off' : 'eye', 'icon');
+      btn.setAttribute('aria-label', shown ? 'Ocultar senha' : 'Mostrar senha');
+      btn.setAttribute('aria-pressed', shown ? 'true' : 'false');
+      btn.title = shown ? 'Ocultar senha' : 'Mostrar senha';
+    };
+    btn.addEventListener('click', () => {
+      const pos = [input.selectionStart, input.selectionEnd];
+      input.type = input.type === 'password' ? 'text' : 'password'; // o valor digitado não muda
+      sync();
+      input.focus({ preventScroll: true });
+      try { if (pos[0] !== null) input.setSelectionRange(pos[0], pos[1]); } catch (e) { /* */ }
+    });
+    // Volta a ocultar ao enviar, para o navegador não guardar a senha como texto comum.
+    input.form?.addEventListener('submit', () => { input.type = 'password'; sync(); });
+    sync();
+    wrap.appendChild(btn);
+  };
+  $$('input[type=password]').forEach(enhancePassword);
+
   /* ---------- Formulários: confirmação e estado de carregamento ---------- */
   document.addEventListener('submit', (e) => {
     const form = e.target;

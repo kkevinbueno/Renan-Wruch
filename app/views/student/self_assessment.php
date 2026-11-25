@@ -22,11 +22,11 @@ $n = count($categories);
   <?php foreach ($categories as $key => $label): $val = (int) ($scores[$key] ?? 0); ?>
     <fieldset class="scale-row fieldset" style="margin:0">
       <legend><?= e($questions[$key] ?? $label) ?></legend>
-      <div class="scale" role="radiogroup">
+      <div class="scale" role="radiogroup" aria-label="<?= e($questions[$key] ?? $label) ?>">
         <?php foreach (array_reverse(SelfEval::SCALE, true) as $nv => $opt): ?>
           <label title="<?= e(SelfEval::DESCRIPTIONS[$key][$nv]) ?>">
             <input type="radio" name="scores[<?= e($key) ?>]" value="<?= $nv ?>" required<?= checked($val === $nv) ?> data-desc="<?= e(SelfEval::DESCRIPTIONS[$key][$nv]) ?>">
-            <span class="opt"><span class="emoji" aria-hidden="true"><?= $opt['emoji'] ?></span><small><?= e($opt['label']) ?></small></span>
+            <span class="opt <?= e($opt['tone']) ?>"><?= SelfEval::face($nv) ?><small><?= e($opt['label']) ?></small></span>
           </label>
         <?php endforeach; ?>
       </div>
@@ -53,7 +53,7 @@ $n = count($categories);
           <?php foreach ($history as $h): $sc = json_decode_array($h['scores']); ?>
             <a class="list-item" href="/app/autoavaliacao?data=<?= e($h['ref_date']) ?>" style="flex-direction:column;align-items:flex-start;gap:6px">
               <span class="small strong"><?= e(fmt_date($h['ref_date'], true)) ?></span>
-              <span class="score-chips"><?php foreach ($sc as $k => $v): ?><span class="score-chip<?= $v <= 2 ? ' low' : '' ?>"><?= e(Students::SELF_EVAL_CATEGORIES[$k] ?? $k) ?> <?= SelfEval::SCALE[$v]['emoji'] ?? '' ?></span><?php endforeach; ?></span>
+              <span class="score-chips"><?php foreach ($sc as $k => $v): ?><span class="score-chip<?= $v <= 2 ? ' low' : '' ?>" title="<?= e(SelfEval::SCALE[$v]['label'] ?? '') ?>"><?= e(Students::SELF_EVAL_CATEGORIES[$k] ?? $k) ?> <?= isset(SelfEval::SCALE[$v]) ? SelfEval::face((int) $v, 'xs') : '' ?><span class="sr-only"> <?= e(SelfEval::SCALE[$v]['label'] ?? '') ?></span></span><?php endforeach; ?></span>
             </a>
           <?php endforeach; ?>
         </div>

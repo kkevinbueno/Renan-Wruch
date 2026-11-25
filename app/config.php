@@ -45,6 +45,9 @@ $GLOBALS['__config'] = [
     'google' => [
         'client_id' => Env::get('GOOGLE_CLIENT_ID', ''),
         'client_secret' => Env::get('GOOGLE_CLIENT_SECRET', ''),
+        // Endereços oficiais do Google. Só os testes automatizados apontam para um servidor local.
+        'auth_url' => Env::get('GOOGLE_AUTH_URL', 'https://accounts.google.com/o/oauth2/v2/auth'),
+        'token_url' => Env::get('GOOGLE_TOKEN_URL', 'https://oauth2.googleapis.com/token'),
     ],
     'apple' => [
         'client_id' => Env::get('APPLE_CLIENT_ID', ''), // Services ID

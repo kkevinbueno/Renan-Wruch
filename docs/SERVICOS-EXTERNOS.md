@@ -17,7 +17,15 @@ Depois, use **Configurações → Operação → Enviar e-mail de teste**. Falha
 2. Em *Credenciais → Criar credenciais → ID do cliente OAuth → Aplicativo da Web*:
    - Origem JavaScript: `https://wruchpersonal.com`
    - URI de redirecionamento: `https://wruchpersonal.com/auth/google/callback`
-3. Copie para `GOOGLE_CLIENT_ID` e `GOOGLE_CLIENT_SECRET`.
+3. Escopos usados: `openid`, `email` e `profile` (não precisam de verificação especial do Google).
+4. Copie para `GOOGLE_CLIENT_ID` e `GOOGLE_CLIENT_SECRET` no `.env` do servidor (nunca no código nem no navegador).
+5. Enquanto a tela de consentimento estiver em modo *Teste*, só os e-mails cadastrados como "usuários de teste" conseguem entrar. Para liberar a todos, publique o app (*Publicar aplicativo*).
+
+Como funciona no Wruch Personal:
+- O botão "Continuar com Google" só aparece no login e no cadastro quando as duas chaves estão preenchidas.
+- Conta nova pelo Google vira **aluno aguardando aprovação** e passa pela tela de consentimento LGPD. Ninguém vira treinador pelo Google: o papel de treinador/desenvolvedor continua vindo apenas de `TRAINER_EMAILS` / `DEVELOPER_EMAILS` com e-mail confirmado.
+- Conta que já existe com o mesmo e-mail **verificado pelo Google** é vinculada automaticamente (sem duplicar). E-mail não verificado nunca vincula.
+- Logado, o aluno (Meu perfil) e o Renan (Configurações → Meu perfil) podem conectar ou desconectar o Google. Desconectar só é permitido para quem tem senha, para ninguém perder o acesso.
 
 ## Login com Apple
 

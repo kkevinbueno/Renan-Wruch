@@ -21,6 +21,7 @@ Router::post('/redefinir-senha', [AuthController::class, 'reset']);
 Router::post('/sair', [AuthController::class, 'logout']);
 Router::get('/auth/google', [AuthController::class, 'google']);
 Router::get('/auth/google/callback', [AuthController::class, 'googleCallback']);
+Router::post('/conta/google/desconectar', [AuthController::class, 'googleUnlink'], ['auth']);
 Router::get('/auth/apple', [AuthController::class, 'apple']);
 Router::post('/auth/apple/callback', [AuthController::class, 'appleCallback'], [], false);
 Router::get('/consentimento', [AuthController::class, 'consentForm'], ['auth']);
@@ -136,6 +137,9 @@ Router::post('/painel/eventos', [CalendarController::class, 'saveEvent'], ['trai
 Router::post('/painel/eventos/{id}/excluir', [CalendarController::class, 'deleteEvent'], ['trainer']);
 Router::get('/painel/mensagens', [ChatController::class, 'trainerIndex'], ['trainer']);
 Router::get('/painel/mensagens/{id}', [ChatController::class, 'trainerThread'], ['trainer']);
+Router::get('/painel/alimentacao', [TrainerNutritionController::class, 'index'], ['trainer']);
+Router::post('/painel/alimentacao/observacoes', [TrainerNutritionController::class, 'addNote'], ['trainer']);
+Router::post('/painel/alimentacao/observacoes/{id}/excluir', [TrainerNutritionController::class, 'deleteNote'], ['trainer']);
 Router::get('/painel/financeiro', [FinanceController::class, 'index'], ['trainer']);
 Router::post('/painel/planos', [FinanceController::class, 'savePlan'], ['trainer']);
 Router::post('/painel/financeiro/sincronizar', [FinanceController::class, 'sync'], ['trainer']);
