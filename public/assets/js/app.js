@@ -145,6 +145,120 @@
   scrim?.addEventListener('click', closeMenu);
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMenu(); });
 
+  /* ---------- Menu lateral do Renan: seção "Mais" em acordeão ----------
+     Estado único: { more: aberto?, section: qual subseção está aberta (ou null) }.
+     A tela é sempre redesenhada a partir desse estado, então nenhuma subseção fica aberta por engano. */
+  $$('[data-nav-accordion]').forEach((root) => {
+    const moreBtn = $('[data-nav-more]', root);
+    const morePanel = document.getElementById(moreBtn.getAttribute('aria-controls'));
+    const sectionBtns = $$('[data-nav-section]', root);
+    const initial = sectionBtns.find((b) => b.getAttribute('aria-expanded') === 'true');
+    const state = { more: moreBtn.getAttribute('aria-expanded') === 'true', section: initial ? initial.dataset.navSection : null };
+    const setPanel = (btn, panel, open, animate) => {
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      if (!animate || reduceMotion()) { panel.hidden = !open; panel.classList.toggle('open', open); return; }
+      if (open) {
+        panel.hidden = false;
+        requestAnimationFrame(() => panel.classList.add('open'));
+      } else {
+        panel.classList.remove('open');
+        const done = () => { if (btn.getAttribute('aria-expanded') === 'false') panel.hidden = true; };
+        panel.addEventListener('transitionend', done, { once: true });
+        setTimeout(done, 260); // garante o fechamento mesmo sem evento de transição
+      }
+    };
+    const render = (animate = true) => {
+      if (!state.more) state.section = null; // fechar "Mais" recolhe todas as subseções
+      setPanel(moreBtn, morePanel, state.more, animate);
+      sectionBtns.forEach((b) => {
+        const panel = document.getElementById(b.getAttribute('aria-controls'));
+        setPanel(b, panel, state.more && state.section === b.dataset.navSection, animate);
+      });
+    };
+    moreBtn.addEventListener('click', () => { state.more = !state.more; render(); });
+    sectionBtns.forEach((b) => b.addEventListener('click', () => {
+      const k = b.dataset.navSection;
+      state.section = state.section === k ? null : k; // mesma subseção: fecha; outra: abre e fecha a anterior
+      render();
+    }));
+    render(false);
+    // Links com âncora (ex.: Financeiro > Planos) marcam o item atual.
+    const markHash = () => {
+      const anchors = $$('a.sub', root).filter((a) => { const u = new URL(a.href, location.href); return u.hash && u.pathname === location.pathname; });
+      anchors.forEach((a, i) => {
+        const u = new URL(a.href, location.href);
+        const on = u.hash === location.hash || (!location.hash && i === 0);
+        a.classList.toggle('active', on);
+        if (on) a.setAttribute('aria-current', 'location'); else a.removeAttribute('aria-current');
+      });
+    };
+    markHash();
+    window.addEventListener('hashchange', markHash);
+  });
+
+  /* ---------- Filtros que recarregam a página: estado de carregamento ---------- */
+  $$('[data-filter-form]').forEach((f) => {
+    const region = $('[data-filter-region]');
+    const busy = () => region?.classList.add('is-busy');
+    f.addEventListener('submit', busy);
+    $$('select[data-autosubmit]', f).forEach((el) => el.addEventListener('change', busy));
+    $$('a', f).forEach((a) => a.addEventListener('click', busy));
+  });
+  if ($('[data-filter-region]')) $$('.tabs a').forEach((a) => a.addEventListener('click', () => $('[data-filter-region]').classList.add('is-busy')));
+  window.addEventListener('pageshow', () => $$('.is-busy').forEach((r) => r.classList.toggle('is-busy', false)));
+
+  /* ---------- Gráfico de barras: dica ao passar o mouse ou tocar ---------- */
+  $$('[data-chart]').forEach((fig) => {
+    const tip = $('[data-chart-tip]', fig);
+    const clear = () => $$('.bar-hit.on', fig).forEach((x) => x.classList.toggle('on', false));
+    const show = (g) => {
+      clear();
+      if (!g) { tip.hidden = true; return; }
+      g.classList.add('on');
+      tip.textContent = g.dataset.tip;
+      tip.hidden = false;
+      const r = fig.getBoundingClientRect();
+      const b = g.getBoundingClientRect();
+      tip.style.left = `${Math.min(Math.max(b.left + b.width / 2 - r.left, 60), r.width - 60)}px`;
+    };
+    fig.addEventListener('pointermove', (e) => show(e.target.closest('.bar-hit')));
+    fig.addEventListener('pointerleave', () => show(null));
+  });
+
+  /* ---------- Mostrar / ocultar senha (aplicado a todo campo de senha) ---------- */
+  const enhancePassword = (input) => {
+    if (input.dataset.pwReady) return;
+    input.dataset.pwReady = '1';
+    if (!input.id) input.id = `pw-${Math.random().toString(36).slice(2, 8)}`;
+    const wrap = document.createElement('span');
+    wrap.className = 'pw-field';
+    input.parentNode.insertBefore(wrap, input);
+    wrap.appendChild(input);
+    const btn = document.createElement('button');
+    btn.type = 'button'; // nunca envia o formulário
+    btn.className = 'pw-toggle';
+    btn.setAttribute('aria-controls', input.id);
+    const sync = () => {
+      const shown = input.type === 'text';
+      btn.innerHTML = ICON(shown ? 'eye-off' : 'eye', 'icon');
+      btn.setAttribute('aria-label', shown ? 'Ocultar senha' : 'Mostrar senha');
+      btn.setAttribute('aria-pressed', shown ? 'true' : 'false');
+      btn.title = shown ? 'Ocultar senha' : 'Mostrar senha';
+    };
+    btn.addEventListener('click', () => {
+      const pos = [input.selectionStart, input.selectionEnd];
+      input.type = input.type === 'password' ? 'text' : 'password'; // o valor digitado não muda
+      sync();
+      input.focus({ preventScroll: true });
+      try { if (pos[0] !== null) input.setSelectionRange(pos[0], pos[1]); } catch (e) { /* */ }
+    });
+    // Volta a ocultar ao enviar, para o navegador não guardar a senha como texto comum.
+    input.form?.addEventListener('submit', () => { input.type = 'password'; sync(); });
+    sync();
+    wrap.appendChild(btn);
+  };
+  $$('input[type=password]').forEach(enhancePassword);
+
   /* ---------- Formulários: confirmação e estado de carregamento ---------- */
   document.addEventListener('submit', (e) => {
     const form = e.target;
@@ -555,6 +669,12 @@
         const node = tpl.cloneNode(true).firstElementChild;
         node.dataset.idx = idx;
         $('[data-num]', node).textContent = idx + 1;
+        const th = it.exercise_id && cfg.lib_thumbs ? cfg.lib_thumbs[it.exercise_id] : null;
+        if (th) {
+          const box = $('[data-thumb]', node);
+          box.hidden = false;
+          box.innerHTML = th.image_url ? `<span class="ex-thumb sm"><img src="${esc(th.image_url)}" alt=""></span>` : `<span class="ex-thumb pict sm ${esc(th.tone || '')}" aria-hidden="true">${ICON(th.equipment_icon || 'eq-acessorios', 'icon')}</span>`;
+        }
         $$('[data-f]', node).forEach((inp) => { inp.value = it[inp.dataset.f] || ''; });
         const pg = $('[data-params]', node);
         it.fields.forEach((f) => {
@@ -677,48 +797,241 @@
     });
     $('[data-general-notes]').addEventListener('input', markDirty);
 
-    // Biblioteca
+    // Biblioteca: busca com filtros, favoritos primeiro, adicionar ou substituir
     const dlg = $('#library-dialog');
     const q = $('[data-lib-q]', dlg);
     const all = $('[data-lib-all]', dlg);
+    const favOnly = $('[data-lib-fav]', dlg);
+    const muscleSel = $('[data-lib-muscle]', dlg);
+    const equipSel = $('[data-lib-equip]', dlg);
     const results = $('[data-lib-results]', dlg);
+    const libTitle = $('[data-lib-title]', dlg);
     let lastResults = [];
     let searchTimer = null;
+    let replaceIdx = null; // índice do exercício a substituir (null = adicionar)
+    let searchSeq = 0;
+    const thumbHtml = (r) => r.image_url
+      ? `<span class="ex-thumb sm"><img src="${esc(r.image_url)}" alt="" loading="lazy"></span>`
+      : `<span class="ex-thumb pict sm ${esc(r.tone || '')}" aria-hidden="true">${ICON(r.equipment_icon || 'eq-acessorios', 'icon')}</span>`;
     const search = async () => {
+      const seq = ++searchSeq;
       results.innerHTML = '<div class="loading-block">Buscando</div>';
       try {
         const params = new URLSearchParams({ q: q.value });
         if (!all.checked) params.set('modality', cfg.modality_id);
+        if (muscleSel.value) params.set('musculo', muscleSel.value);
+        if (equipSel.value) params.set('equipamento', equipSel.value);
+        if (favOnly.checked) params.set('favoritos', '1');
         const res = await api(`/api/biblioteca?${params}`);
+        if (seq !== searchSeq) return; // resposta antiga
         lastResults = res.results;
-        results.innerHTML = res.results.length ? res.results.map((r, i) => `<div class="lib-result"><div class="grow"><div class="strong">${esc(r.name)}</div><div class="xs muted">${esc(r.modality)}${r.category ? ' · ' + esc(r.category) : ''}${r.video_url || r.video_file_id ? ' · vídeo' : ''}</div></div><button type="button" class="btn pw sm" data-pick="${i}">${ICON('plus')} Adicionar</button></div>`).join('')
+        results.innerHTML = res.results.length ? res.results.map((r, i) => `<div class="lib-result">${thumbHtml(r)}<div class="grow" style="min-width:0"><div class="strong truncate">${esc(r.name)}</div><div class="xs muted truncate">${esc([r.muscle, r.equipment, r.difficulty].filter(Boolean).join(' · ') || r.modality)}${r.video_status === 'ok' ? ' · vídeo' : ''}</div></div><button type="button" class="fav-btn${r.favorite ? ' on' : ''}" data-fav="${i}" aria-pressed="${r.favorite}" aria-label="Favoritar ${esc(r.name)}">${ICON('star')}</button><button type="button" class="btn pw sm" data-pick="${i}">${replaceIdx === null ? `${ICON('plus')} Adicionar` : 'Usar este'}</button></div>`).join('')
           : '<div class="empty small">Nenhum exercício encontrado. <a href="/painel/biblioteca/novo" target="_blank">Cadastrar</a></div>';
-      } catch (err) { results.innerHTML = `<div class="empty small">${esc(err.message)}</div>`; }
+      } catch (err) { if (seq === searchSeq) results.innerHTML = `<div class="empty small">${esc(err.message)}</div>`; }
     };
-    $('[data-open-dialog="library-dialog"]').addEventListener('click', () => { search(); setTimeout(() => q.focus(), 50); });
+    const openLibrary = (idx = null) => {
+      replaceIdx = idx;
+      libTitle.textContent = idx === null ? 'Adicionar exercício' : `Substituir “${items[idx].name || 'exercício'}”`;
+      if (idx !== null) { q.value = ''; }
+      if (!dlg.open) dlg.showModal();
+      search();
+      setTimeout(() => q.focus(), 50);
+    };
+    $('[data-open-dialog="library-dialog"]').addEventListener('click', () => openLibrary(null));
     const createBtn = $('[data-lib-create]', dlg);
     const syncCreate = () => { if (createBtn) createBtn.querySelector('span').textContent = q.value.trim() ? `Criar “${q.value.trim()}” como exercício novo` : 'Criar exercício personalizado'; };
     createBtn?.addEventListener('click', () => {
-      items.push({ exercise_id: null, name: q.value.trim(), instructions: '', notes: '', video_url: '', video_file_id: null, params: {}, fields: [...cfg.modality_fields] });
+      const blank = { exercise_id: null, name: q.value.trim(), instructions: '', notes: '', video_url: '', video_file_id: null, params: {}, fields: [...cfg.modality_fields] };
+      if (replaceIdx !== null) { blank.params = items[replaceIdx].params; blank.notes = items[replaceIdx].notes; items[replaceIdx] = blank; }
+      else items.push(blank);
       render();
       markDirty();
       dlg.close();
       list.lastElementChild?.querySelector(q.value.trim() ? '[data-param]' : '.item-name')?.focus();
     });
     q.addEventListener('input', () => { syncCreate(); clearTimeout(searchTimer); searchTimer = setTimeout(search, 300); });
-    all.addEventListener('change', search);
-    results.addEventListener('click', (e) => {
+    [all, favOnly, muscleSel, equipSel].forEach((el) => el.addEventListener('change', search));
+    results.addEventListener('click', async (e) => {
+      const fb = e.target.closest('[data-fav]');
+      if (fb) {
+        const r = lastResults[+fb.dataset.fav];
+        try {
+          const res = await api(`/painel/biblioteca/${r.id}/favorito`, { method: 'POST' });
+          r.favorite = res.favorite;
+          fb.classList.toggle('on', res.favorite);
+          fb.setAttribute('aria-pressed', String(res.favorite));
+        } catch (err) { toast(err.message, 'error'); }
+        return;
+      }
       const b = e.target.closest('[data-pick]');
       if (!b) return;
       const r = lastResults[+b.dataset.pick];
-      items.push({ exercise_id: r.id, name: r.name, instructions: r.instructions || '', notes: r.notes || '', video_url: r.video_url || '', video_file_id: r.video_file_id, video_file_url: r.video_file_url, params: {}, fields: r.fields && r.fields.length ? r.fields : [...cfg.modality_fields] });
+      // Vídeo da biblioteca só é copiado quando já foi revisado; as orientações aparecem para o aluno a partir da biblioteca.
+      const videoOk = r.video_status === 'ok';
+      const picked = { exercise_id: r.id, name: r.name, instructions: '', notes: '', video_url: videoOk ? (r.video_url || '') : '', video_file_id: videoOk ? r.video_file_id : null, video_file_url: videoOk ? r.video_file_url : null, params: {}, fields: r.fields && r.fields.length ? r.fields : [...cfg.modality_fields] };
+      cfg.lib_thumbs[r.id] = { equipment_icon: r.equipment_icon, tone: r.tone, image_url: r.image_url };
+      if (replaceIdx !== null) {
+        const old = items[replaceIdx];
+        picked.params = { ...old.params };   // mantém séries, repetições, carga e descanso
+        picked.instructions = old.instructions || '';
+        picked.notes = old.notes || '';
+        items[replaceIdx] = picked;
+        const at = replaceIdx;
+        render();
+        markDirty();
+        dlg.close();
+        toast(`Substituído por ${r.name}.`, 'success');
+        list.children[at]?.querySelector('[data-param]')?.focus();
+        return;
+      }
+      items.push(picked);
       render();
       markDirty();
       b.textContent = 'Adicionado';
       b.disabled = true;
     });
+    list.addEventListener('click', (e) => {
+      const rb = e.target.closest('[data-replace-item]');
+      if (rb) openLibrary(+rb.closest('.editor-item').dataset.idx);
+    });
     render();
   }
+
+  /* ---------- Áudio: player com ondas, velocidade e um áudio por vez ---------- */
+  const Voice = (() => {
+    let current = null; // player tocando agora
+    const RATES = [1, 1.5, 2];
+    let rate = 1;
+    try { rate = RATES.includes(+localStorage.getItem('wp-audio-rate')) ? +localStorage.getItem('wp-audio-rate') : 1; } catch (e) { /* */ }
+    const fmt = (s) => { s = Math.max(0, Math.round(s || 0)); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
+    const BARS = 44;
+    const peakCache = new Map();
+    /** Lê o áudio real e calcula a forma de onda (picos normalizados). */
+    async function computePeaks(src, bars = BARS) {
+      if (peakCache.has(src)) return peakCache.get(src);
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      if (!Ctx) return null;
+      const p = (async () => {
+        const buf = await (await fetch(src, { credentials: 'same-origin' })).arrayBuffer();
+        const ctx = new Ctx();
+        try {
+          const audio = await new Promise((res, rej) => { const r = ctx.decodeAudioData(buf, res, rej); if (r && r.then) r.then(res, rej); });
+          return { peaks: peaksFromBuffer(audio, bars), duration: audio.duration };
+        } finally { ctx.close?.(); }
+      })().catch(() => null);
+      peakCache.set(src, p);
+      return p;
+    }
+    function peaksFromBuffer(audio, bars = BARS) {
+      const data = audio.getChannelData(0);
+      const step = Math.max(1, Math.floor(data.length / bars));
+      const out = [];
+      for (let i = 0; i < bars; i++) {
+        let sum = 0;
+        const start = i * step;
+        for (let j = 0; j < step && start + j < data.length; j++) sum += data[start + j] * data[start + j];
+        out.push(Math.sqrt(sum / step));
+      }
+      return normalize(out);
+    }
+    function normalize(arr) {
+      const max = Math.max(...arr, 0.0001);
+      return arr.map((v) => Math.round(Math.min(1, v / max) * 1000) / 1000);
+    }
+    function resample(arr, bars = BARS) {
+      if (!arr || !arr.length) return null;
+      if (arr.length === bars) return arr;
+      return Array.from({ length: bars }, (_, i) => arr[Math.min(arr.length - 1, Math.floor(i * arr.length / bars))]);
+    }
+    function drawBars(wave, peaks) {
+      const p = resample(peaks) || Array(BARS).fill(0.18);
+      wave.innerHTML = p.map((v) => `<i style="--h:${Math.max(0.12, v).toFixed(3)}"></i>`).join('');
+      wave.classList.toggle('flat', !peaks);
+    }
+    /** Cria o player dentro de `root` para a URL `src`. */
+    function mount(root, src, meta = {}) {
+      root.classList.add('voice');
+      root.innerHTML = `<button type="button" class="voice-btn" aria-label="Reproduzir áudio">${ICON('play', 'icon')}</button>
+        <div class="voice-main"><div class="voice-wave"></div><input type="range" class="voice-seek" min="0" max="1000" value="0" step="1" aria-label="Posição do áudio">
+        <div class="voice-meta"><span class="voice-time">0:00</span><span class="voice-err" hidden>Não foi possível carregar o áudio. <button type="button" class="link">Tentar de novo</button></span></div></div>
+        <button type="button" class="voice-rate" aria-label="Velocidade de reprodução">${String(rate).replace('.', ',')}x</button>`;
+      const btn = root.querySelector('.voice-btn');
+      const wave = root.querySelector('.voice-wave');
+      const seek = root.querySelector('.voice-seek');
+      const time = root.querySelector('.voice-time');
+      const err = root.querySelector('.voice-err');
+      const rateBtn = root.querySelector('.voice-rate');
+      const audio = new Audio();
+      audio.preload = 'metadata';
+      audio.src = src;
+      let total = meta.duration > 0 ? meta.duration : 0;
+      drawBars(wave, meta.peaks && meta.peaks.length ? meta.peaks : null);
+      const totalNow = () => (Number.isFinite(audio.duration) && audio.duration > 0 ? audio.duration : total);
+      const paint = () => {
+        const d = totalNow();
+        const pos = d ? Math.min(1, audio.currentTime / d) : 0;
+        root.style.setProperty('--p', pos.toFixed(4));
+        if (!seek.matches(':active')) seek.value = Math.round(pos * 1000);
+        time.textContent = audio.currentTime > 0 || !audio.paused ? `${fmt(audio.currentTime)} / ${fmt(d)}` : fmt(d);
+        seek.setAttribute('aria-valuetext', `${fmt(audio.currentTime)} de ${fmt(d)}`);
+      };
+      const setState = (s) => {
+        root.dataset.state = s;
+        btn.innerHTML = ICON(s === 'playing' ? 'pause' : 'play', 'icon');
+        btn.setAttribute('aria-label', s === 'playing' ? 'Pausar áudio' : 'Reproduzir áudio');
+      };
+      setState('paused');
+      paint();
+      if (!meta.peaks || !meta.peaks.length) {
+        // Sem forma de onda salva (áudio antigo ou enviado como arquivo): calcula a partir do áudio real quando aparecer na tela.
+        const load = () => computePeaks(src).then((r) => { if (r) { drawBars(wave, r.peaks); if (!total && r.duration) { total = r.duration; paint(); } } });
+        if ('IntersectionObserver' in window) {
+          const io = new IntersectionObserver((ents) => { if (ents.some((x) => x.isIntersecting)) { io.disconnect(); load(); } });
+          io.observe(root);
+        } else load();
+      }
+      audio.addEventListener('loadedmetadata', paint);
+      audio.addEventListener('durationchange', paint);
+      audio.addEventListener('timeupdate', paint);
+      audio.addEventListener('waiting', () => root.classList.add('loading'));
+      audio.addEventListener('canplay', () => root.classList.remove('loading'));
+      audio.addEventListener('playing', () => { root.classList.remove('loading'); setState('playing'); });
+      audio.addEventListener('pause', () => setState('paused'));
+      audio.addEventListener('ended', () => { setState('paused'); audio.currentTime = 0; paint(); if (current === player) current = null; });
+      audio.addEventListener('error', () => { root.classList.remove('loading'); err.hidden = false; time.hidden = true; setState('paused'); });
+      err.querySelector('button').addEventListener('click', () => { err.hidden = true; time.hidden = false; audio.load(); });
+      const player = {
+        root, audio,
+        play() {
+          if (current && current !== player) current.pause();
+          current = player;
+          audio.playbackRate = rate;
+          root.classList.add('loading');
+          const pr = audio.play();
+          if (pr && pr.catch) pr.catch(() => { root.classList.remove('loading'); setState('paused'); });
+        },
+        pause() { audio.pause(); },
+        destroy() { audio.pause(); audio.removeAttribute('src'); audio.load(); if (current === player) current = null; },
+      };
+      btn.addEventListener('click', () => (audio.paused ? player.play() : player.pause()));
+      seek.addEventListener('input', () => {
+        const d = totalNow();
+        if (!d) return;
+        audio.currentTime = (seek.value / 1000) * d;
+        paint();
+      });
+      rateBtn.addEventListener('click', () => {
+        rate = RATES[(RATES.indexOf(rate) + 1) % RATES.length];
+        try { localStorage.setItem('wp-audio-rate', String(rate)); } catch (e) { /* */ }
+        document.querySelectorAll('.voice-rate').forEach((b) => { b.textContent = `${String(rate).replace('.', ',')}x`; });
+        if (current) current.audio.playbackRate = rate;
+      });
+      root._player = player;
+      return player;
+    }
+    return { mount, fmt, normalize, peaksFromBuffer, resample, BARS };
+  })();
+  window.wpVoice = Voice;
 
   /* ---------- Chat ---------- */
   const chat = $('[data-chat]');
@@ -734,9 +1047,9 @@
     let firstId = 0;
     let lastDate = '';
     let attach = null;
-    let audioMode = false;
     let polling = null;
     let readUpTo = 0;
+    let since = '';
 
     const fmtDay = (d) => {
       const today = new Date();
@@ -747,23 +1060,34 @@
       const [yy, mm, dd] = d.split('-');
       return `${dd}/${mm}/${yy}`;
     };
-    const bubble = (m) => {
-      const el = document.createElement('div');
-      el.className = `bubble${m.mine ? ' mine' : ''}`;
-      el.dataset.id = m.id;
+    const bubbleInner = (m) => {
       let html = '';
-      if (m.file) {
-        if (m.file.removed) html += '<em class="small">Arquivo removido</em>';
-        else if (m.file.kind === 'image') html += `<a href="${esc(m.file.url)}" target="_blank"><img src="${esc(m.file.url)}" alt="Imagem enviada" loading="lazy"></a>`;
-        else if (m.file.kind === 'video') html += `<video controls preload="metadata" playsinline src="${esc(m.file.url)}"></video>`;
-        else if (m.file.kind === 'audio') html += `<audio controls preload="metadata" src="${esc(m.file.url)}"></audio>`;
-        else html += `<a class="file-link" href="${esc(m.file.url)}&download=1">${ICON('file', 'icon')}<span><span class="strong">${esc(m.file.name)}</span><br><span class="xs">${esc(m.file.size)}</span></span></a>`;
+      if (m.deleted) {
+        html += `<div class="deleted-msg">${ICON('ban')} ${m.mine ? 'Você apagou esta mensagem' : 'Esta mensagem foi apagada'}</div>`;
+      } else {
+        if (m.file) {
+          if (m.file.removed) html += '<em class="small">Arquivo removido</em>';
+          else if (m.file.kind === 'image') html += `<a href="${esc(m.file.url)}" target="_blank"><img src="${esc(m.file.url)}" alt="Imagem enviada" loading="lazy"></a>`;
+          else if (m.file.kind === 'video') html += `<video controls preload="metadata" playsinline src="${esc(m.file.url)}"></video>`;
+          else if (m.file.kind === 'audio') html += '<div data-voice></div>';
+          else html += `<a class="file-link" href="${esc(m.file.url)}&download=1">${ICON('file', 'icon')}<span><span class="strong">${esc(m.file.name)}</span><br><span class="xs">${esc(m.file.size)}</span></span></a>`;
+        }
+        if (m.body) html += `<div class="msg-text">${esc(m.body)}</div>`;
       }
-      if (m.body) html += `<div>${esc(m.body)}</div>`;
-      html += `<div class="meta"><span>${esc(m.time)}</span>${m.mine ? `<span data-read title="${m.read ? 'Lida' : 'Enviada'}">${m.read ? '✓✓' : '✓'}</span>` : ''}</div>`;
-      el.innerHTML = html;
-      return el;
+      html += `<div class="meta"><span>${esc(m.time)}</span>${m.mine && !m.deleted ? `<span data-read title="${m.read ? 'Lida' : 'Enviada'}">${m.read ? '✓✓' : '✓'}</span>` : ''}</div>`;
+      if (!m.deleted) html += `<button type="button" class="msg-menu" data-msg-menu aria-label="Opções da mensagem">${ICON('dots')}</button>`;
+      return html;
     };
+    const fillBubble = (el, m) => {
+      el.querySelector('[data-voice]')?._player?.destroy?.();
+      el.className = `bubble${m.mine ? ' mine' : ''}${m.deleted ? ' deleted' : ''}`;
+      el.dataset.id = m.id;
+      el._msg = m;
+      el.innerHTML = bubbleInner(m);
+      const v = el.querySelector('[data-voice]');
+      if (v && m.file) Voice.mount(v, m.file.url, m.file.audio || {});
+    };
+    const bubble = (m) => { const el = document.createElement('div'); fillBubble(el, m); return el; };
     const append = (msgs, prepend = false) => {
       if (!msgs.length) return;
       const atBottom = log.scrollHeight - log.scrollTop - log.clientHeight < 80;
@@ -781,16 +1105,33 @@
       });
       if (prepend) {
         const h = log.scrollHeight;
-        log.insertBefore(frag, log.firstChild);
+        log.insertBefore(frag, log.querySelector('.chat-day, .bubble'));
         log.scrollTop = log.scrollHeight - h;
         firstId = msgs[0].id;
       } else {
         log.appendChild(frag);
         lastDate = day;
-        lastId = msgs[msgs.length - 1].id;
+        lastId = Math.max(lastId, msgs[msgs.length - 1].id);
         if (!firstId) firstId = msgs[0].id;
         if (atBottom || msgs.some((m) => m.mine)) log.scrollTop = log.scrollHeight;
       }
+    };
+    const removeBubble = (id) => {
+      const el = log.querySelector(`.bubble[data-id="${id}"]`);
+      if (!el) return;
+      el.querySelector('[data-voice]')?._player?.destroy?.();
+      el.classList.add('leaving');
+      setTimeout(() => {
+        const prev = el.previousElementSibling;
+        el.remove();
+        // Remove o separador de dia que ficou vazio.
+        if (prev?.classList.contains('chat-day') && (!prev.nextElementSibling || prev.nextElementSibling.classList.contains('chat-day'))) prev.remove();
+      }, reduceMotion() ? 0 : 220);
+    };
+    const applyChanges = (res) => {
+      (res.changed || []).forEach((m) => { const el = log.querySelector(`.bubble[data-id="${m.id}"]`); if (el) fillBubble(el, m); });
+      (res.hidden || []).forEach(removeBubble);
+      if (res.server_time) since = res.server_time;
     };
     const markRead = () => {
       $$('.bubble.mine', log).forEach((b) => {
@@ -805,6 +1146,7 @@
         if (!res.messages.length) log.insertAdjacentHTML('beforeend', '<div class="empty small" data-empty-chat>Nenhuma mensagem ainda. Escreva a primeira!</div>');
         append(res.messages);
         readUpTo = res.read_up_to;
+        since = res.server_time || '';
         markRead();
         log.scrollTop = log.scrollHeight;
       } catch (err) { log.innerHTML = `<div class="empty small">${esc(err.message)}</div>`; }
@@ -829,8 +1171,9 @@
     const poll = async () => {
       if (document.hidden) return;
       try {
-        const res = await api(`${endpoint}?after=${lastId}`);
+        const res = await api(`${endpoint}?after=${lastId}&since=${encodeURIComponent(since)}`);
         if (res.messages.length) { $('[data-empty-chat]', log)?.remove(); append(res.messages.filter((m) => !log.querySelector(`.bubble[data-id="${m.id}"]`))); }
+        applyChanges(res);
         readUpTo = res.read_up_to;
         markRead();
       } catch (e) { /* tenta na próxima */ }
@@ -838,68 +1181,262 @@
     load().then(() => { polling = setInterval(poll, 4000); });
     document.addEventListener('visibilitychange', () => { if (!document.hidden) poll(); });
 
-    const setAttach = (file, isAudio = false) => {
+    // Mostra o microfone quando não há texto nem anexo; senão, o botão de enviar.
+    const syncCompose = () => chat.classList.toggle('has-content', !!(input.value.trim() || attach));
+    const setAttach = (file) => {
       attach = file;
-      audioMode = isAudio;
       preview.classList.toggle('show', !!file);
-      $('[data-attach-name]', preview).textContent = file ? `${file.name || 'Áudio gravado'} · ${(file.size / 1048576).toFixed(1)} MB` : '';
+      $('[data-attach-name]', preview).textContent = file ? `${file.name || 'Arquivo'} · ${(file.size / 1048576).toFixed(1)} MB` : '';
+      syncCompose();
     };
     fileInput.addEventListener('change', () => setAttach(fileInput.files[0] || null));
     $('[data-attach-clear]', preview).addEventListener('click', () => { setAttach(null); fileInput.value = ''; });
-    input.addEventListener('input', () => { input.style.height = 'auto'; input.style.height = `${Math.min(140, input.scrollHeight)}px`; });
+    input.addEventListener('input', () => { input.style.height = 'auto'; input.style.height = `${Math.min(140, input.scrollHeight)}px`; syncCompose(); });
     input.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey && window.matchMedia('(min-width: 720px)').matches) { e.preventDefault(); form.requestSubmit(); } });
 
+    async function sendForm(fd, hasFile, btn) {
+      btn?.classList.add('is-loading');
+      try {
+        const res = hasFile ? await upload(endpoint, fd) : await api(endpoint, { method: 'POST', body: fd });
+        $('[data-empty-chat]', log)?.remove();
+        if (!log.querySelector(`.bubble[data-id="${res.message.id}"]`)) append([res.message]);
+        return true;
+      } catch (err) { toast(err.message, 'error'); return false; }
+      finally { btn?.classList.remove('is-loading'); }
+    }
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const body = input.value.trim();
       if (!body && !attach) return;
       const fd = new FormData();
       fd.append('body', body);
-      if (attach) { fd.append('file', attach, attach.name || 'audio.webm'); if (audioMode) fd.append('audio', '1'); }
-      const btn = form.querySelector('[type=submit]');
-      btn.classList.add('is-loading');
-      try {
-        const res = attach ? await upload(endpoint, fd) : await api(endpoint, { method: 'POST', body: fd });
-        $('[data-empty-chat]', log)?.remove();
-        if (!log.querySelector(`.bubble[data-id="${res.message.id}"]`)) append([res.message]);
+      if (attach) fd.append('file', attach, attach.name || 'arquivo');
+      if (await sendForm(fd, !!attach, form.querySelector('[type=submit]'))) {
         input.value = '';
         input.style.height = '';
         setAttach(null);
         fileInput.value = '';
-      } catch (err) { toast(err.message, 'error'); }
-      finally { btn.classList.remove('is-loading'); }
+      }
     });
 
-    // Gravação de áudio
-    let recorder = null;
-    let chunks = [];
-    recBtn.addEventListener('click', async () => {
-      if (recorder && recorder.state === 'recording') { recorder.stop(); return; }
-      if (!navigator.mediaDevices?.getUserMedia || !window.MediaRecorder) { toast('Seu navegador não permite gravar áudio. Envie um arquivo de áudio pelo clipe.', 'error'); return; }
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        const type = ['audio/webm;codecs=opus', 'audio/mp4', 'audio/ogg;codecs=opus'].find((t) => MediaRecorder.isTypeSupported?.(t)) || '';
-        recorder = new MediaRecorder(stream, type ? { mimeType: type } : {});
-        chunks = [];
-        const started = Date.now();
-        recorder.ondataavailable = (ev) => { if (ev.data.size) chunks.push(ev.data); };
-        recorder.onstop = () => {
-          stream.getTracks().forEach((t) => t.stop());
-          recBtn.classList.remove('recording');
-          recBtn.setAttribute('aria-label', 'Gravar áudio');
-          const mime = recorder.mimeType || 'audio/webm';
-          const ext = mime.includes('mp4') ? 'm4a' : mime.includes('ogg') ? 'ogg' : 'webm';
-          const blob = new Blob(chunks, { type: mime.split(';')[0] });
-          if (Date.now() - started < 800) return;
-          setAttach(new File([blob], `audio-${Date.now()}.${ext}`, { type: blob.type }), true);
-          toast('Áudio pronto. Toque em enviar.', 'success');
-        };
-        recorder.start();
-        recBtn.classList.add('recording');
-        recBtn.setAttribute('aria-label', 'Parar gravação');
-        setTimeout(() => { if (recorder?.state === 'recording') recorder.stop(); }, 5 * 60 * 1000);
-      } catch (err) { toast('Permita o uso do microfone para gravar áudio.', 'error'); }
+    /* ----- Gravação de áudio ----- */
+    const recBar = $('[data-rec-bar]', chat);
+    const recLive = $('[data-rec-live]', chat);
+    const recTime = $('[data-rec-time]', chat);
+    const recWave = $('[data-rec-wave]', chat);
+    const recPreview = $('[data-rec-preview]', chat);
+    const recStop = $('[data-rec-stop]', chat);
+    const recSend = $('[data-rec-send]', chat);
+    const MAX_SECONDS = 5 * 60;
+    let rec = null; // { recorder, stream, chunks, started, levels, timer, ctx, raf, blob, duration, peaks, url, player, cancelled }
+
+    const micError = (err) => {
+      if (!window.isSecureContext) return 'A gravação de áudio só funciona em conexão segura (https).';
+      if (err?.name === 'NotAllowedError' || err?.name === 'SecurityError') return 'O microfone está bloqueado. Libere o acesso ao microfone nas configurações do navegador e tente de novo.';
+      if (err?.name === 'NotFoundError' || err?.name === 'OverconstrainedError') return 'Nenhum microfone encontrado neste aparelho.';
+      if (err?.name === 'NotReadableError') return 'O microfone está sendo usado por outro aplicativo.';
+      return 'Não foi possível acessar o microfone.';
+    };
+    const showRecBar = (on) => {
+      recBar.hidden = !on;
+      form.hidden = on;
+      chat.classList.toggle('is-recording', on);
+    };
+    const cleanupRec = () => {
+      if (!rec) return;
+      clearInterval(rec.timer);
+      cancelAnimationFrame(rec.raf);
+      rec.stream?.getTracks().forEach((t) => t.stop());
+      rec.ctx?.close?.();
+      rec.player?.destroy();
+      if (rec.url) URL.revokeObjectURL(rec.url);
+      rec = null;
+      recPreview.hidden = true;
+      recPreview.innerHTML = '';
+      recLive.hidden = false;
+      recStop.hidden = false;
+      recWave.innerHTML = '';
+      recTime.textContent = '0:00';
+      showRecBar(false);
+      recBtn.focus();
+    };
+    const elapsed = () => (rec ? (Date.now() - rec.started) / 1000 : 0);
+    /** Para o gravador e devolve o áudio final (Blob). */
+    const stopRecorder = () => new Promise((resolve) => {
+      if (!rec || !rec.recorder || rec.recorder.state === 'inactive') { resolve(rec?.blob || null); return; }
+      rec.recorder.onstop = () => {
+        const mime = (rec.recorder.mimeType || 'audio/webm').split(';')[0];
+        rec.blob = new Blob(rec.chunks, { type: mime });
+        rec.duration = elapsed();
+        clearInterval(rec.timer);
+        cancelAnimationFrame(rec.raf);
+        rec.stream.getTracks().forEach((t) => t.stop());
+        resolve(rec.blob);
+      };
+      rec.recorder.stop();
     });
+    const finalPeaks = async () => {
+      // Forma de onda do áudio final; se o navegador não conseguir decodificar, usa os níveis medidos durante a gravação.
+      try {
+        const Ctx = window.AudioContext || window.webkitAudioContext;
+        const ctx = new Ctx();
+        const buf = await rec.blob.arrayBuffer();
+        const audio = await new Promise((res, rej) => { const r = ctx.decodeAudioData(buf, res, rej); if (r && r.then) r.then(res, rej); });
+        ctx.close?.();
+        if (audio.duration && Number.isFinite(audio.duration)) rec.duration = audio.duration;
+        return Voice.peaksFromBuffer(audio);
+      } catch (e) {
+        return rec.levels.length ? Voice.resample(Voice.normalize(rec.levels)) : [];
+      }
+    };
+    const sendRecording = async () => {
+      if (!rec) return;
+      const blob = await stopRecorder();
+      if (!blob || blob.size < 600 || rec.duration < 0.8) { toast('Áudio muito curto. Segure um pouco mais.', 'error'); cleanupRec(); return; }
+      if (!rec.peaks) rec.peaks = await finalPeaks();
+      const ext = blob.type.includes('mp4') || blob.type.includes('aac') ? 'm4a' : blob.type.includes('ogg') ? 'ogg' : 'webm';
+      const fd = new FormData();
+      fd.append('body', '');
+      fd.append('audio', '1');
+      fd.append('duration', rec.duration.toFixed(2));
+      fd.append('peaks', JSON.stringify(rec.peaks || []));
+      fd.append('file', new File([blob], `audio-${Date.now()}.${ext}`, { type: blob.type }));
+      recSend.disabled = true;
+      const ok = await sendForm(fd, true, recSend);
+      recSend.disabled = false;
+      if (ok) cleanupRec();
+      else if (!recPreview.innerHTML) await showPreview(); // falhou: mantém o áudio para tentar de novo
+    };
+    const showPreview = async () => {
+      const blob = await stopRecorder();
+      if (!blob || blob.size < 600 || rec.duration < 0.8) { toast('Áudio muito curto.', 'error'); cleanupRec(); return; }
+      rec.peaks = await finalPeaks();
+      rec.url = URL.createObjectURL(blob);
+      recLive.hidden = true;
+      recStop.hidden = true;
+      recPreview.hidden = false;
+      rec.player = Voice.mount(recPreview, rec.url, { duration: rec.duration, peaks: rec.peaks });
+    };
+    recBtn.addEventListener('click', async () => {
+      if (rec) return;
+      if (!navigator.mediaDevices?.getUserMedia || !window.MediaRecorder) {
+        toast(window.isSecureContext ? 'Seu navegador não permite gravar áudio. Envie um arquivo de áudio pelo clipe.' : micError(), 'error');
+        return;
+      }
+      let stream;
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } });
+      } catch (err) { toast(micError(err), 'error'); return; }
+      const type = ['audio/webm;codecs=opus', 'audio/mp4', 'audio/ogg;codecs=opus', 'audio/webm'].find((t) => MediaRecorder.isTypeSupported?.(t)) || '';
+      let recorder;
+      try { recorder = new MediaRecorder(stream, type ? { mimeType: type } : {}); } catch (e) { stream.getTracks().forEach((t) => t.stop()); toast('Não foi possível iniciar a gravação neste navegador.', 'error'); return; }
+      rec = { recorder, stream, chunks: [], started: Date.now(), levels: [], timer: null, ctx: null, raf: 0, blob: null, duration: 0, peaks: null };
+      recorder.ondataavailable = (ev) => { if (ev.data.size) rec?.chunks.push(ev.data); };
+      recorder.start(250);
+      showRecBar(true);
+      recWave.innerHTML = '';
+      // Nível do microfone em tempo real (ondas ao vivo).
+      try {
+        const Ctx = window.AudioContext || window.webkitAudioContext;
+        rec.ctx = new Ctx();
+        const an = rec.ctx.createAnalyser();
+        an.fftSize = 512;
+        rec.ctx.createMediaStreamSource(stream).connect(an);
+        const data = new Uint8Array(an.fftSize);
+        let last = 0;
+        const tick = (t) => {
+          if (!rec) return;
+          if (t - last > 90) {
+            last = t;
+            an.getByteTimeDomainData(data);
+            let sum = 0;
+            for (let i = 0; i < data.length; i++) { const v = (data[i] - 128) / 128; sum += v * v; }
+            const lvl = Math.min(1, Math.sqrt(sum / data.length) * 3.2);
+            rec.levels.push(lvl);
+            const bar = document.createElement('i');
+            bar.style.setProperty('--h', Math.max(0.1, lvl).toFixed(3));
+            recWave.appendChild(bar);
+            while (recWave.children.length > 60) recWave.firstChild.remove();
+          }
+          rec.raf = requestAnimationFrame(tick);
+        };
+        rec.raf = requestAnimationFrame(tick);
+      } catch (e) { /* sem ondas ao vivo; a gravação continua */ }
+      rec.timer = setInterval(() => {
+        const s = elapsed();
+        recTime.textContent = Voice.fmt(s);
+        if (s >= MAX_SECONDS) { toast('Limite de 5 minutos atingido. Ouça e envie.', 'info'); showPreview(); }
+      }, 250);
+      recSend.focus();
+    });
+    $('[data-rec-cancel]', chat).addEventListener('click', async () => {
+      if (rec?.recorder && rec.recorder.state !== 'inactive') { rec.recorder.onstop = null; rec.recorder.stop(); }
+      cleanupRec();
+      toast('Gravação descartada.');
+    });
+    recStop.addEventListener('click', () => showPreview());
+    recSend.addEventListener('click', sendRecording);
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && rec && !document.querySelector('dialog[open]')) $('[data-rec-cancel]', chat).click(); });
+
+    /* ----- Apagar mensagens (toque longo no celular, menu ⋯ ou botão direito no computador) ----- */
+    const sheet = $('[data-msg-sheet]');
+    let target = null;
+    const openSheet = (bubbleEl) => {
+      const m = bubbleEl?._msg;
+      if (!m || m.deleted) return;
+      target = bubbleEl;
+      $('[data-sheet-step="choose"]', sheet).hidden = false;
+      $('[data-sheet-step="confirm"]', sheet).hidden = true;
+      $('[data-del="all"]', sheet).hidden = !m.can_delete_all;
+      bubbleEl.classList.add('selected');
+      sheet.showModal();
+      $('[data-del="me"]', sheet).focus();
+      navigator.vibrate?.(12);
+    };
+    sheet.addEventListener('close', () => { target?.classList.remove('selected'); });
+    $$('[data-sheet-close]', sheet).forEach((b) => b.addEventListener('click', () => sheet.close()));
+    sheet.addEventListener('click', (e) => { if (e.target === sheet) sheet.close(); });
+    const doDelete = async (scope) => {
+      const el = target;
+      const m = el?._msg;
+      if (!m) return;
+      sheet.close();
+      try {
+        const fd = new FormData();
+        fd.append('scope', scope);
+        const res = await api(`${endpoint}/${m.id}/apagar`, { method: 'POST', body: fd });
+        if (scope === 'me') removeBubble(m.id);
+        else fillBubble(el, res.message);
+        toast(scope === 'me' ? 'Mensagem apagada para você.' : 'Mensagem apagada para todos.', 'success');
+      } catch (err) { toast(err.message, 'error'); }
+    };
+    $('[data-del="me"]', sheet).addEventListener('click', () => doDelete('me'));
+    $('[data-del="all"]', sheet).addEventListener('click', () => {
+      $('[data-sheet-step="choose"]', sheet).hidden = true;
+      $('[data-sheet-step="confirm"]', sheet).hidden = false;
+      $('[data-del-confirm]', sheet).focus();
+    });
+    $('[data-del-confirm]', sheet).addEventListener('click', () => doDelete('all'));
+    log.addEventListener('click', (e) => { const b = e.target.closest('[data-msg-menu]'); if (b) openSheet(b.closest('.bubble')); });
+    log.addEventListener('contextmenu', (e) => {
+      const el = e.target.closest('.bubble');
+      if (!el || el.classList.contains('deleted') || e.target.closest('a, video')) return;
+      e.preventDefault();
+      openSheet(el);
+    });
+    let pressTimer = null;
+    let pressStart = null;
+    log.addEventListener('pointerdown', (e) => {
+      if (e.pointerType === 'mouse') return;
+      const el = e.target.closest('.bubble');
+      if (!el || el.classList.contains('deleted') || e.target.closest('button, a, input, video')) return;
+      pressStart = { x: e.clientX, y: e.clientY };
+      pressTimer = setTimeout(() => { pressTimer = null; openSheet(el); }, 480);
+    });
+    const cancelPress = () => { clearTimeout(pressTimer); pressTimer = null; };
+    log.addEventListener('pointerup', cancelPress);
+    log.addEventListener('pointercancel', cancelPress);
+    log.addEventListener('pointermove', (e) => { if (pressTimer && pressStart && Math.hypot(e.clientX - pressStart.x, e.clientY - pressStart.y) > 10) cancelPress(); });
   }
 
   /* ---------- Contadores no menu ---------- */

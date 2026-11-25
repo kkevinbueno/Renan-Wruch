@@ -14,12 +14,14 @@ final class OAuth
         return config('apple.client_id') !== '' && config('apple.team_id') !== '' && config('apple.key_id') !== '' && is_file((string) config('apple.private_key_path'));
     }
 
-    public static function googleRedirect(): string
+    /** @param ?int $linkUserId  conta já logada que quer vincular o Google (null = entrar/cadastrar) */
+    public static function googleRedirect(?int $linkUserId = null): string
     {
         $state = random_token(24);
         $_SESSION['oauth_state'] = $state;
         $_SESSION['oauth_nonce'] = random_token(16);
-        return 'https://accounts.google.com/o/oauth2/v2/auth?' . http_build_query([
+        if ($linkUserId) $_SESSION['oauth_link'] = $linkUserId; else unset($_SESSION['oauth_link']);
+        return config('google.auth_url') . '?' . http_build_query([
             'client_id' => config('google.client_id'),
             'redirect_uri' => url('/auth/google/callback'),
             'response_type' => 'code',
@@ -37,7 +39,7 @@ final class OAuth
             throw new UserError('Sessão de login expirada. Tente novamente.');
         }
         unset($_SESSION['oauth_state']);
-        $r = Http::request('POST', 'https://oauth2.googleapis.com/token', ['Content-Type' => 'application/x-www-form-urlencoded'], [
+        $r = Http::request('POST', (string) config('google.token_url'), ['Content-Type' => 'application/x-www-form-urlencoded'], [
             'code' => $code,
             'client_id' => config('google.client_id'),
             'client_secret' => config('google.client_secret'),
@@ -55,6 +57,8 @@ final class OAuth
             || ($c['nonce'] ?? '') !== ($_SESSION['oauth_nonce'] ?? null)) {
             throw new UserError('Resposta do Google inválida.');
         }
+        unset($_SESSION['oauth_nonce']);
+        if (empty($c['sub'])) throw new UserError('Resposta do Google inválida.');
         return [
             'sub' => (string) $c['sub'],
             'email' => mb_strtolower((string) ($c['email'] ?? '')),

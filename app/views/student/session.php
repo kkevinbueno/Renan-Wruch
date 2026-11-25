@@ -34,12 +34,10 @@ $tone = mod_tone($modality);
     $single = array_values(array_intersect($hasSets ? $singleCatalog : array_merge($singleCatalog, $perSetCatalog), $fields));
     $prescribedSets = max(1, (int) ($it['params']['sets'] ?? 1));
     $rows = max($prescribedSets, count($d['sets'] ?? []));
-    $embed = video_embed_url($it['video_url']);
-    $hasMedia = $embed || $it['video_file_id'];
 ?>
   <article class="exercise<?= !empty($entry['completed']) ? ' done' : '' ?>" data-entry data-item-id="<?= (int) $it['id'] ?>" data-rest="<?= e($it['params']['rest'] ?? '') ?>">
     <div class="exercise-head">
-      <span class="exercise-num"><?= $i + 1 ?></span>
+      <?= !empty($it['exercise_id']) ? ExerciseLibrary::thumb(['image_file_id' => $it['lib_image_file_id'] ?? null, 'equipment' => $it['lib_equipment'] ?? null, 'primary_muscle' => $it['lib_primary_muscle'] ?? null], 'sm') : '<span class="exercise-num">' . ($i + 1) . '</span>' ?>
       <div class="grow">
         <h2 style="font-family:var(--font-display);font-weight:400;text-transform:uppercase;font-size:clamp(1.6rem,7vw,2.2rem);line-height:1"><?= e($it['name']) ?></h2>
         <div class="params"><?= params_summary($it['params'], $fields) ?></div>
@@ -47,16 +45,7 @@ $tone = mod_tone($modality);
       <button type="button" class="btn sm <?= !empty($entry['completed']) ? 'accent' : 'secondary' ?>" data-complete aria-pressed="<?= !empty($entry['completed']) ? 'true' : 'false' ?>"><?= icon('check', 'icon-sm') ?><span><?= !empty($entry['completed']) ? 'Feito' : 'Concluir' ?></span></button>
     </div>
     <div class="exercise-body">
-      <?php if ($it['instructions'] || $it['notes'] || $hasMedia): ?>
-        <details class="more mb"><summary><?= icon($hasMedia ? 'play' : 'clipboard', 'icon-sm') ?> Ver como fazer</summary>
-          <div class="stack-sm mt">
-            <?php if ($it['video_file_id']): ?><div class="video-embed"><video controls preload="none" playsinline src="<?= e(Files::url((int) $it['video_file_id'])) ?>"></video></div>
-            <?php elseif ($embed): ?><div class="video-embed"><iframe src="<?= e($embed) ?>" title="Vídeo" allowfullscreen loading="lazy"></iframe></div><?php endif; ?>
-            <?php if ($it['instructions']): ?><p class="small pre"><?= e($it['instructions']) ?></p><?php endif; ?>
-            <?php if ($it['notes']): ?><p class="small muted pre"><b>Observação:</b> <?= e($it['notes']) ?></p><?php endif; ?>
-          </div>
-        </details>
-      <?php endif; ?>
+      <?= View::partial('exercise_guide', ['it' => $it]) ?>
 
       <?php if ($hasSets): ?>
         <div class="sets" data-sets data-fields="<?= e(implode(',', $perSet)) ?>" style="--cols: <?= max(1, count($perSet)) ?>">

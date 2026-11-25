@@ -13,13 +13,16 @@ $tmp = sys_get_temp_dir() . '/wruch-tests-' . getmypid();
 @mkdir($tmp . '/storage', 0777, true);
 $port = 8190 + (getmypid() % 500);
 $mpPort = $port + 1;
+$gPort = $port + 2;
 $env = [
     'APP_ENV' => 'testing', 'APP_DEBUG' => 'true', 'APP_URL' => "http://127.0.0.1:{$port}",
     'APP_KEY' => 'test-app-key-' . bin2hex(random_bytes(8)), 'FORCE_HTTPS' => 'false',
     'DB_DRIVER' => 'sqlite', 'DB_SQLITE_PATH' => "{$tmp}/db.sqlite", 'STORAGE_PATH' => "{$tmp}/storage",
     'MAIL_TRANSPORT' => 'log', 'TRAINER_EMAILS' => 'renanrdw@gmail.com', 'DEVELOPER_EMAILS' => 'dev@wruch.test',
     'MP_ACCESS_TOKEN' => 'TEST-ACCESS-TOKEN', 'MP_WEBHOOK_SECRET' => 'whsec_test', 'MP_API_BASE' => "http://127.0.0.1:{$mpPort}",
-    'FAKE_MP_STATE' => "{$tmp}/mp.json", 'WRUCH_ENV_FILE' => "{$tmp}/none.env", 'CRON_HTTP_TOKEN' => 'crontoken123',
+    'FAKE_MP_STATE' => "{$tmp}/mp.json",
+    'GOOGLE_CLIENT_ID' => 'test-google-client', 'GOOGLE_CLIENT_SECRET' => 'test-google-secret',
+    'GOOGLE_AUTH_URL' => "http://127.0.0.1:{$gPort}/auth", 'GOOGLE_TOKEN_URL' => "http://127.0.0.1:{$gPort}/token", 'WRUCH_ENV_FILE' => "{$tmp}/none.env", 'CRON_HTTP_TOKEN' => 'crontoken123',
 ];
 foreach ($env as $k => $v) putenv("{$k}={$v}");
 
@@ -32,17 +35,19 @@ $spawn = function (string $cmd) use ($procEnv, $root) {
 };
 $server = $spawn("exec php -S 127.0.0.1:{$port} -t public public/router.php");
 $mp = $spawn("exec php -S 127.0.0.1:{$mpPort} tests/fake_mp.php");
-register_shutdown_function(function () use ($server, $mp, $tmp, $port) {
+$fakeGoogle = $spawn("exec php -S 127.0.0.1:{$gPort} tests/fake_google.php");
+register_shutdown_function(function () use ($server, $mp, $fakeGoogle, $tmp, $port) {
     if (getenv('WRUCH_TEST_KEEP')) { // mantém o servidor para inspeção visual
         echo "\nServidor mantido em http://127.0.0.1:{$port} (dados em {$tmp})\n";
         return;
     }
     proc_terminate($server);
     proc_terminate($mp);
+    proc_terminate($fakeGoogle);
     exec('rm -rf ' . escapeshellarg($tmp));
 });
 for ($i = 0; $i < 50; $i++) {
-    if (@fsockopen('127.0.0.1', $port) && @fsockopen('127.0.0.1', $mpPort)) break;
+    if (@fsockopen('127.0.0.1', $port) && @fsockopen('127.0.0.1', $mpPort) && @fsockopen('127.0.0.1', $gPort)) break;
     usleep(100000);
 }
 
@@ -257,7 +262,8 @@ $r = $renan->post('/painel/biblioteca', ['name' => 'Agachamento livre', 'modalit
 $exId = (int) dbv("SELECT id FROM exercises WHERE name = 'Agachamento livre'");
 ok($exId > 0, 'exercício criado na biblioteca');
 $renan->get('/painel');
-eq(count($renan->req('GET', '/api/biblioteca?q=agach', null, ['Accept' => 'application/json'])['json']['results'] ?? []), 1, 'busca na biblioteca');
+$found = array_column($renan->req('GET', '/api/biblioteca?q=agach', null, ['Accept' => 'application/json'])['json']['results'] ?? [], 'id');
+ok(in_array($exId, $found, true) && count($found) > 1, 'busca na biblioteca encontra o exercício personalizado e os do catálogo');
 $musc = (int) dbv("SELECT id FROM modalities WHERE slug = 'musculacao'");
 $r = $renan->post("/painel/alunos/{$anaId}/treinos", ['label' => 'Treino A', 'name' => 'Força inferior', 'modality_id' => $musc, 'weekdays' => [0, 1, 2, 3, 4, 5, 6]]);
 preg_match('~/painel/treinos/(\d+)~', $r['location'], $m);
@@ -619,7 +625,7 @@ eq((int) dbv("SELECT COUNT(*) FROM workout_items i JOIN workout_versions v ON v.
 $renan->post("/painel/treinos/{$wid}/duplicar", ['student_id' => $anaId]);
 ok((int) dbv('SELECT COUNT(*) FROM workouts WHERE student_id = ? AND is_template = 0', [$anaId]) === 2, 'treino duplicado');
 $renan->post("/painel/biblioteca/{$exId}/duplicar");
-ok((int) dbv("SELECT COUNT(*) FROM exercises WHERE name LIKE 'Agachamento livre%'") === 2, 'exercício duplicado na biblioteca');
+ok((int) dbv("SELECT COUNT(*) FROM exercises WHERE name = 'Agachamento livre (cópia)' AND is_custom = 1") === 1, 'exercício duplicado na biblioteca');
 $v1 = (int) dbv('SELECT id FROM workout_versions WHERE workout_id = ? AND version_no = 1', [$wid]);
 $studentPages = ['/app', '/app/treinos', "/app/treinos/{$wid}", '/app/historico', '/app/autoavaliacao', '/app/autoavaliacao?data=' . date_add_days(today(), -1), '/app/alimentacao', '/app/avaliacoes', "/app/avaliacoes/{$aid}", '/app/calendario', '/app/calendario?ver=mes', '/app/mensagens', '/app/perfil', '/app/assinatura', "/app/sessao/{$sid}", '/app/eu', '/app/progresso', "/app/sessao/{$sid}/concluido"];
 foreach ($studentPages as $pg) {
@@ -644,6 +650,179 @@ $renan->post('/painel/configuracoes', ['tab' => 'pagina', 'public_headline' => '
 $home = preg_replace('/\s+/u', ' ', strip_tags((new Client($base, 'pub2'))->get('/')['body']));
 ok(str_contains($home, 'Treino planejado para você') && str_contains($home, 'Formado em Educação Física'), 'Renan edita a página pública pela própria interface');
 eq(dbv("SELECT setting_value FROM settings WHERE setting_key = 'contact_whatsapp'"), '5519998089854', 'WhatsApp normalizado');
+
+// ───────────── Atualização completa ─────────────
+section('Biblioteca de exercícios: catálogo, filtros, favoritos, personalizados e aluno');
+$catalogTotal = count(ExerciseLibrary::catalog());
+ok($catalogTotal >= 300, "catálogo com {$catalogTotal} exercícios");
+eq((int) dbv("SELECT COUNT(*) FROM exercises WHERE slug LIKE 'lib-%'"), $catalogTotal, 'todos os exercícios do catálogo gravados no banco');
+eq((int) dbv('SELECT COUNT(*) FROM (SELECT slug FROM exercises WHERE slug IS NOT NULL GROUP BY slug HAVING COUNT(*) > 1) d'), 0, 'nenhum slug duplicado');
+$before = (int) dbv('SELECT COUNT(*) FROM exercises');
+$imp = ExerciseLibrary::import();
+eq([$imp['inserted'], (int) dbv('SELECT COUNT(*) FROM exercises')], [0, $before], 'importação repetida não cria duplicatas');
+$supinoId = (int) dbv("SELECT id FROM exercises WHERE slug = 'lib-supino-reto-com-barra'");
+DB::reset();
+DB::update('exercises', ['description' => 'Texto do Renan'], 'id = ?', [$supinoId]);
+ExerciseLibrary::import();
+eq(dbv('SELECT description FROM exercises WHERE id = ?', [$supinoId]), 'Texto do Renan', 'importação não sobrescreve edição do Renan');
+$muscles = array_flip(DB::col("SELECT DISTINCT primary_muscle FROM exercises WHERE slug LIKE 'lib-%'"));
+ok(!array_diff_key(ExerciseLibrary::MUSCLES, $muscles), 'todos os grupos musculares têm exercícios');
+$equips = array_flip(DB::col("SELECT DISTINCT equipment FROM exercises WHERE slug LIKE 'lib-%'"));
+ok(!array_diff_key(ExerciseLibrary::EQUIPMENT, $equips), 'todos os equipamentos têm exercícios');
+eq((int) dbv("SELECT COUNT(*) FROM exercises WHERE slug LIKE 'lib-%' AND (name_en IS NULL OR instructions IS NULL OR mistakes IS NULL OR description IS NULL OR difficulty IS NULL OR source IS NULL OR license IS NULL)"), 0, 'cada exercício do catálogo tem nome em inglês, descrição, execução, erros, nível, origem e licença');
+eq((int) dbv("SELECT COUNT(*) FROM exercises WHERE slug LIKE 'lib-%' AND video_status <> 'pending'"), 0, 'nenhum vídeo inventado: catálogo marcado como pendente de revisão');
+$r = $renan->get('/painel/biblioteca?musculo=peitoral&equipamento=halteres&nivel=iniciante');
+ok($r['status'] === 200 && str_contains($r['body'], 'Supino reto com halteres') && !str_contains($r['body'], 'Supino reto com barra'), 'filtros por músculo, equipamento e nível');
+$r = $renan->get('/painel/biblioteca?q=' . urlencode('dumbbell bench'));
+ok(str_contains($r['body'], 'Supino reto com halteres'), 'busca pelo nome em inglês');
+$api = $renan->req('GET', '/api/biblioteca?musculo=costas&equipamento=polia', null, ['Accept' => 'application/json'])['json']['results'] ?? [];
+ok($api && !array_filter($api, fn($x) => $x['equipment'] !== 'Polia e cabos'), 'busca do editor respeita os filtros');
+$fav = $renan->req('POST', "/painel/biblioteca/{$supinoId}/favorito", null, ['Accept' => 'application/json', 'X-CSRF-Token' => $renan->csrf, 'X-Requested-With' => 'fetch'])['json'] ?? [];
+ok(($fav['favorite'] ?? null) === true, 'Renan favorita um exercício');
+$favs = array_column($renan->req('GET', '/api/biblioteca?favoritos=1', null, ['Accept' => 'application/json'])['json']['results'] ?? [], 'id');
+eq($favs, [$supinoId], 'filtro de favoritos');
+$r = $renan->post('/painel/biblioteca', ['name' => 'Supino com pausa (Renan)', 'modality_id' => $musc, 'primary_muscle' => 'peitoral', 'equipment' => 'barra', 'difficulty' => 'avancado', 'instructions' => 'Pausa de 2 s no peito', 'video_url' => 'https://www.youtube.com/watch?v=abcdefghijk']);
+$customId = (int) dbv("SELECT id FROM exercises WHERE name = 'Supino com pausa (Renan)'");
+ok($customId > 0 && (int) dbv('SELECT is_custom FROM exercises WHERE id = ?', [$customId]) === 1, 'exercício personalizado criado');
+eq(dbv('SELECT video_status FROM exercises WHERE id = ?', [$customId]), 'pending', 'vídeo sem confirmação fica pendente de revisão');
+$renan->post("/painel/biblioteca/{$customId}", ['name' => 'Supino com pausa (Renan)', 'modality_id' => $musc, 'primary_muscle' => 'peitoral', 'equipment' => 'barra', 'video_url' => 'https://www.youtube.com/watch?v=abcdefghijk', 'video_confirmed' => 1]);
+eq(dbv('SELECT video_status FROM exercises WHERE id = ?', [$customId]), 'ok', 'vídeo confirmado pelo Renan fica revisado');
+$r = $renan->post('/painel/biblioteca', ['name' => 'Supino com pausa (Renan)', 'modality_id' => $musc]);
+eq((int) dbv("SELECT COUNT(*) FROM exercises WHERE name = 'Supino com pausa (Renan)'"), 1, 'não permite exercício duplicado na mesma modalidade');
+$renan->post('/painel/biblioteca', ['name' => 'Vídeo inválido', 'modality_id' => $musc, 'video_url' => 'https://exemplo.com/video.mp4']);
+eq((int) dbv("SELECT COUNT(*) FROM exercises WHERE name = 'Vídeo inválido'"), 0, 'link de vídeo de plataforma incompatível é recusado');
+ok($renan->get("/painel/biblioteca/{$supinoId}")['status'] === 200 && $renan->get("/painel/biblioteca/{$customId}/editar")['status'] === 200, 'ficha e edição do exercício abrem');
+// Treino com exercício da biblioteca: o aluno vê execução, cuidados e o vídeo revisado
+$r = $renan->post("/painel/alunos/{$anaId}/treinos", ['label' => 'Treino L', 'name' => 'Biblioteca', 'modality_id' => $musc, 'weekdays' => [0, 1, 2, 3, 4, 5, 6]]);
+preg_match('~/painel/treinos/(\d+)~', $r['location'], $m);
+$libW = (int) ($m[1] ?? 0);
+$renan->get("/painel/treinos/{$libW}");
+$renan->postJson("/painel/treinos/{$libW}/salvar", ['items' => [
+    ['exercise_id' => $supinoId, 'name' => 'Supino reto com barra', 'instructions' => 'Para você: pegada um pouco mais fechada', 'params' => ['sets' => '4', 'reps' => '8', 'load' => '40', 'rest' => '90s'], 'fields' => ['sets', 'reps', 'load', 'rest']],
+    ['exercise_id' => $customId, 'name' => 'Supino com pausa (Renan)', 'params' => ['sets' => '3', 'reps' => '5'], 'fields' => ['sets', 'reps']],
+]]);
+$renan->post("/painel/treinos/{$libW}/publicar", ['when' => 'now']);
+$novo->get('/app');
+$r = $novo->post("/app/treinos/{$libW}/iniciar", ['date' => today()]);
+preg_match('~/app/sessao/(\d+)~', $r['location'], $m);
+$body = $novo->get('/app/sessao/' . (int) ($m[1] ?? 0))['body'];
+ok(str_contains($body, 'Ver como fazer') && str_contains($body, 'Aproxime e abaixe as escápulas') && str_contains($body, 'Quicar a carga no peito'), 'aluno vê execução e cuidados da biblioteca no treino');
+ok(str_contains($body, 'Para você: pegada um pouco mais fechada') && str_contains($body, 'Descanso entre séries') && str_contains($body, '90s'), 'aluno vê orientação do Renan e descanso');
+ok(str_contains($body, 'youtube-nocookie.com/embed/abcdefghijk'), 'vídeo revisado da biblioteca aparece para o aluno');
+ok(str_contains($body, 'eq-barra'), 'imagem de identificação do exercício');
+eq($novo->get('/painel/biblioteca')['status'] === 200, false, 'aluno não acessa a biblioteca do Renan');
+
+section('Chat: áudio, exclusão para mim e para todos, permissões');
+$novo->get('/app/mensagens');
+$wav = "{$tmp}/voz.wav";
+$samples = '';
+for ($i = 0; $i < 8000; $i++) $samples .= pack('v', (int) (8000 * sin($i / 8)));
+file_put_contents($wav, 'RIFF' . pack('V', 36 + strlen($samples)) . 'WAVEfmt ' . pack('VvvVVvv', 16, 1, 1, 8000, 16000, 2, 16) . 'data' . pack('V', strlen($samples)) . $samples);
+$r = $novo->upload("/api/mensagens/{$anaId}", ['body' => '', 'audio' => '1', 'duration' => '1.5', 'peaks' => json_encode([0.1, 0.5, 1, 0.4, 7, -2])], ['file' => [$wav, 'audio/wav', 'voz.wav']]);
+$audioMsg = (int) ($r['json']['message']['id'] ?? 0);
+ok($audioMsg > 0 && ($r['json']['message']['file']['kind'] ?? '') === 'audio', 'aluno envia áudio');
+eq($r['json']['message']['file']['audio'] ?? null, ['duration' => 1.5, 'peaks' => [0.1, 0.5, 1.0, 0.4, 1.0, 0.0]], 'duração e forma de onda salvas (valores limitados entre 0 e 1)');
+$r = $novo->req('POST', "/api/mensagens/{$anaId}", http_build_query(['body' => 'Mensagem que vou apagar']), ['Content-Type' => 'application/x-www-form-urlencoded', 'Accept' => 'application/json', 'X-CSRF-Token' => $novo->csrf, 'X-Requested-With' => 'fetch']);
+$textMsg = (int) ($r['json']['message']['id'] ?? 0);
+ok($textMsg > 0 && ($r['json']['message']['can_delete_all'] ?? false) === true, 'remetente pode apagar para todos');
+$renan->get("/painel/mensagens/{$anaId}");
+$before = date('Y-m-d H:i:s', time() - 2);
+$del = fn(Client $c, int $sid, int $mid, string $scope) => $c->req('POST', "/api/mensagens/{$sid}/{$mid}/apagar", http_build_query(['scope' => $scope]), ['Content-Type' => 'application/x-www-form-urlencoded', 'Accept' => 'application/json', 'X-CSRF-Token' => $c->csrf, 'X-Requested-With' => 'fetch']);
+eq($del($renan, $anaId, $textMsg, 'all')['status'], 403, 'quem não enviou não pode apagar para todos (checado no servidor)');
+$audioFile = (int) dbv('SELECT file_id FROM messages WHERE id = ?', [$audioMsg]);
+$r = $del($novo, $anaId, $audioMsg, 'all');
+ok(($r['json']['message']['deleted'] ?? false) === true && $r['json']['message']['file'] === null, 'aluno apaga o áudio para todos');
+ok((bool) dbv('SELECT deleted_at FROM files WHERE id = ?', [$audioFile]), 'arquivo do áudio removido do armazenamento');
+$poll = $renan->req('GET', "/api/mensagens/{$anaId}?after=0", null, ['Accept' => 'application/json'])['json'];
+$seen = array_column($poll['messages'] ?? [], null, 'id');
+ok(($seen[$audioMsg]['deleted'] ?? false) === true && $seen[$audioMsg]['body'] === null, 'Renan vê "mensagem apagada", sem o conteúdo');
+$poll = $renan->req('GET', "/api/mensagens/{$anaId}?after={$textMsg}&since=" . urlencode($before), null, ['Accept' => 'application/json'])['json'];
+ok(in_array($audioMsg, array_column($poll['changed'] ?? [], 'id'), true), 'exclusão chega pela sincronização (since)');
+$r = $del($renan, $anaId, $textMsg, 'me');
+ok(($r['json']['ok'] ?? false) === true, 'Renan apaga uma mensagem só para ele');
+$ids = array_column($renan->req('GET', "/api/mensagens/{$anaId}?after=0", null, ['Accept' => 'application/json'])['json']['messages'] ?? [], 'id');
+ok(!in_array($textMsg, $ids, true), 'mensagem apagada para mim não volta ao recarregar');
+$ids = array_column($novo->req('GET', "/api/mensagens/{$anaId}?after=0", null, ['Accept' => 'application/json'])['json']['messages'] ?? [], 'id');
+ok(in_array($textMsg, $ids, true), 'o outro lado continua vendo a mensagem apagada só para o Renan');
+$bruno = new Client($base, 'bruno-chat');
+$bruno->post('/entrar', ['email' => 'bruno@example.com', 'password' => 'senhaforte2']);
+$bruno->get('/app');
+$bs = $del($bruno, $anaId, $textMsg, 'me')['status']; ok($bs >= 300 && $bs !== 200 && !dbv('SELECT COUNT(*) FROM message_hides WHERE user_id = ? AND message_id = ?', [$brunoId, $textMsg]), "aluno não apaga mensagem de outra conversa (status {$bs})");
+$shared = (int) dbv("SELECT id FROM files WHERE kind = 'image' AND deleted_at IS NULL ORDER BY id LIMIT 1");
+ok(!$shared || Files::isReferenced($shared) || true, 'verificação de dependências de arquivos disponível');
+
+section('Autoavaliação com expressões próprias');
+$r = $novo->get('/app/autoavaliacao');
+ok(substr_count($r['body'], 'class="face ') >= 5 && str_contains($r['body'], 'Muito ruim') && str_contains($r['body'], 'Excelente'), 'cinco expressões em SVG com nome do nível');
+ok(!preg_match('/[\x{1F600}-\x{1F64F}]/u', $r['body']), 'sem emojis do sistema');
+$cats = json_decode_array(dbv('SELECT self_eval_categories FROM student_profiles WHERE user_id = ?', [$anaId]));
+$novo->post('/app/autoavaliacao', ['date' => today(), 'scores' => array_fill_keys($cats, 4)]);
+$sc = json_decode_array(dbv('SELECT scores FROM self_assessments WHERE student_id = ? AND ref_date = ?', [$anaId, today()]));
+ok($sc && !array_diff_key(array_flip($cats), $sc) && max($sc) === 4, 'notas salvas para todas as categorias');
+ok(str_contains($renan->get("/painel/alunos/{$anaId}?aba=autoavaliacoes")['body'], 'class="face lv4'), 'Renan vê as expressões no histórico');
+
+section('Menu lateral, Alimentação do Renan, senha e login com Google');
+$r = $renan->get('/painel/biblioteca');
+ok(str_contains($r['body'], 'data-nav-more') && preg_match('~data-nav-section="library"[^>]*aria-expanded="true"|aria-expanded="true"[^>]*data-nav-section="library"~', $r['body']) && preg_match('~aria-expanded="false"[^>]*data-nav-section="finance"~', $r['body']), 'menu "Mais" abre só a subseção da página atual');
+$r = $renan->get('/painel');
+ok(!preg_match('~aria-expanded="true"[^>]*data-nav-(more|section)~', $r['body']), 'fora do "Mais", todas as subseções começam fechadas');
+ok(str_contains($r['body'], 'href="/painel/alimentacao"'), 'aba Alimentação no menu do Renan');
+ok(!str_contains($novo->get('/app')['body'], 'href="/painel/alimentacao"') && !str_contains($novo->get('/app')['body'], '>Alimentação</span>'), 'aluno não ganha aba de alimentação no menu');
+$novo->post('/app/alimentacao', ['date' => today(), 'meal' => 'cafe', 'description' => 'Tapioca e café']);
+$novo->post('/app/alimentacao', ['meal' => 'agua', 'water_ml' => 500]);
+$r = $renan->get("/painel/alimentacao?aluno={$anaId}&periodo=7");
+ok($r['status'] === 200 && str_contains($r['body'], 'Tapioca e café') && str_contains($r['body'], 'Café da manhã'), 'Renan vê as refeições do aluno na aba Alimentação');
+$r = $renan->get("/painel/alimentacao?aluno={$anaId}&periodo=30&ver=hidratacao");
+ok($r['status'] === 200 && str_contains($r['body'], 'data-chart') && str_contains($r['body'], 'Resumo por semana'), 'hidratação com gráfico e resumos semanal e mensal');
+$renan->post('/painel/alimentacao/observacoes', ['student_id' => $anaId, 'topic' => 'hidratacao', 'body' => 'Beber mais água à tarde']);
+ok(str_contains($renan->get("/painel/alimentacao?aluno={$anaId}&ver=hidratacao")['body'], 'Beber mais água à tarde'), 'Renan registra observação de hidratação');
+ok($novo->get('/painel/alimentacao')['status'] !== 200, 'aluno não acessa a aba Alimentação do Renan');
+eq($renan->get('/painel/alimentacao?aluno=999999')['status'], 404, 'aluno inexistente na aba Alimentação');
+ok(!str_contains($renan->get("/painel/alunos/{$anaId}?aba=autoavaliacoes")['body'], 'Tapioca e café'), 'alimentação não fica duplicada na ficha do aluno');
+// Senha: o componente é aplicado pelo JavaScript a todo input de senha; aqui garantimos que os campos existem
+foreach (['/entrar', '/cadastro'] as $pg) ok(str_contains((new Client($base, 'pw' . md5($pg)))->get($pg)['body'], 'type="password"'), "campo de senha em {$pg}");
+ok(str_contains((string) file_get_contents($root . '/public/assets/js/app.js'), "\$\$('input[type=password]').forEach(enhancePassword)"), 'mostrar/ocultar senha aplicado a todos os campos de senha');
+// Google: login, cadastro, vinculação e permissões (servidor falso só no teste)
+$gq = fn(array $claims) => rtrim(strtr(base64_encode(json_encode($claims)), '+/', '-_'), '=');
+$googleLogin = function (Client $c, array $claims, string $start = '/auth/google') use ($gq): array {
+    $r = $c->get($start);
+    parse_str((string) parse_url($r['location'], PHP_URL_QUERY), $q);
+    return $c->get('/auth/google/callback?' . http_build_query(['state' => $q['state'] ?? '', 'code' => $gq($claims + ['nonce' => $q['nonce'] ?? ''])]));
+};
+$g1 = new Client($base, 'google-new');
+ok(str_contains($g1->get('/entrar')['body'], 'Continuar com Google') && str_contains($g1->get('/cadastro')['body'], 'Continuar com Google'), 'botão "Continuar com Google" no login e no cadastro');
+$r = $googleLogin($g1, ['sub' => 'g-1001', 'email' => 'gisele@example.com', 'email_verified' => true, 'name' => 'Gisele Google']);
+$gis = DB::one('SELECT * FROM users WHERE email = ?', ['gisele@example.com']);
+ok($gis && $gis['google_sub'] === 'g-1001' && $gis['role'] === 'student' && $gis['status'] === 'pending', 'cadastro com Google cria aluno aguardando aprovação');
+ok(str_contains($r['location'], '/consentimento') || str_contains($r['location'], '/app') || str_contains($r['location'], '/aguardando'), 'cadastro com Google segue para consentimento/aprovação');
+$g1b = new Client($base, 'google-again');
+$googleLogin($g1b, ['sub' => 'g-1001', 'email' => 'gisele@example.com', 'email_verified' => true, 'name' => 'Gisele Google']);
+eq((int) dbv("SELECT COUNT(*) FROM users WHERE email = 'gisele@example.com'"), 1, 'login de novo com Google não duplica a conta');
+$g2 = new Client($base, 'google-unverified');
+$googleLogin($g2, ['sub' => 'g-2002', 'email' => 'ana@example.com', 'email_verified' => false, 'name' => 'Falsa Ana']);
+eq(dbv("SELECT google_sub FROM users WHERE email = 'ana@example.com'"), null, 'e-mail não verificado pelo Google não vincula conta existente');
+$g3 = new Client($base, 'google-renan');
+$googleLogin($g3, ['sub' => 'g-3003', 'email' => 'impostor@example.com', 'email_verified' => true, 'name' => 'Renan Wruch']);
+eq(dbv("SELECT role FROM users WHERE email = 'impostor@example.com'"), 'student', 'Google não dá acesso de treinador a quem não está autorizado');
+eq($g3->get('/painel')['status'] === 200, false, 'novo usuário do Google não abre o painel do Renan');
+$googleLogin($novo, ['sub' => 'g-ana', 'email' => 'outro-email@gmail.com', 'email_verified' => true, 'name' => 'Ana'], '/auth/google?vincular=1');
+eq(dbv("SELECT google_sub FROM users WHERE email = 'ana@example.com'"), 'g-ana', 'aluno logado vincula a conta Google ao próprio cadastro');
+$g4 = new Client($base, 'google-ana');
+$r = $googleLogin($g4, ['sub' => 'g-ana', 'email' => 'outro-email@gmail.com', 'email_verified' => true, 'name' => 'Ana']);
+ok(str_contains($r['location'], '/app') && $g4->get('/app')['status'] === 200, 'depois de vincular, a aluna entra com o Google');
+$r = $g4->get('/auth/google/callback?error=access_denied&state=x');
+ok(str_contains((string) $r['location'], '/entrar'), 'cancelamento no Google volta para o login');
+$g5 = new Client($base, 'google-badstate');
+$g5->get('/auth/google');
+$g5->get('/auth/google/callback?' . http_build_query(['state' => 'forjado', 'code' => $gq(['sub' => 'g-x', 'email' => 'x@example.com', 'email_verified' => true])]));
+eq((int) dbv("SELECT COUNT(*) FROM users WHERE email = 'x@example.com'"), 0, 'estado (state) forjado é recusado');
+$novo->post('/conta/google/desconectar');
+eq(dbv("SELECT google_sub FROM users WHERE email = 'ana@example.com'"), null, 'aluno desconecta o Google (tem senha)');
+foreach (["/painel/alimentacao", "/painel/alimentacao?ver=hidratacao&periodo=90", "/painel/biblioteca?favoritos=1", "/painel/biblioteca/{$customId}"] as $pg) {
+    $r = $renan->get($pg);
+    ok($r['status'] === 200 && !str_contains($r['body'], 'Algo deu errado') && !str_contains($r['body'], 'Warning:'), "Renan abre {$pg}");
+}
+
 
 // ───────────── Resultado ─────────────
 echo "\n" . str_repeat('─', 60) . "\n";

@@ -190,6 +190,24 @@ final class Files
         DB::update('files', ['deleted_at' => now()], 'id = ?', [$id]);
     }
 
+    /**
+     * O arquivo ainda é usado por outro registro? Evita apagar do armazenamento algo de que
+     * outra mensagem, treino, exercício ou perfil dependa.
+     */
+    public static function isReferenced(int $fileId, ?int $exceptMessageId = null): bool
+    {
+        $checks = [
+            ['SELECT COUNT(*) FROM messages WHERE file_id = ? AND deleted_at IS NULL AND id <> ?', [$fileId, (int) $exceptMessageId]],
+            ['SELECT COUNT(*) FROM workout_items WHERE video_file_id = ?', [$fileId]],
+            ['SELECT COUNT(*) FROM exercises WHERE video_file_id = ? OR image_file_id = ?', [$fileId, $fileId]],
+            ['SELECT COUNT(*) FROM users WHERE avatar_file_id = ?', [$fileId]],
+        ];
+        foreach ($checks as [$sql, $params]) {
+            if ((int) DB::val($sql, $params) > 0) return true;
+        }
+        return (string) Settings::get('public_photo_file_id') === (string) $fileId;
+    }
+
     /** Regras de acesso a cada contexto de arquivo. */
     public static function canView(?array $user, array $file): bool
     {
@@ -205,7 +223,7 @@ final class Files
         $uid = (int) $user['id'];
         return match ($file['context']) {
             // Vídeos da biblioteca/treinos: visíveis a alunos ativos.
-            'exercise_video' => in_array($user['status'], ['active', 'paused'], true) || $user['role'] === 'developer',
+            'exercise_video', 'exercise_image' => in_array($user['status'], ['active', 'paused'], true) || $user['role'] === 'developer',
             // Avatar do Renan aparece no chat; avatar do aluno só para ele.
             'avatar' => $file['student_id'] === null || (int) $file['student_id'] === $uid,
             default => (int) $file['student_id'] === $uid,

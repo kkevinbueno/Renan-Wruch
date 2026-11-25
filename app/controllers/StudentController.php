@@ -24,7 +24,7 @@ final class StudentController
             'nextEvent' => Schedule::nextEvent($uid, $today),
             'selfDue' => $selfDue,
             'selfDoneToday' => (bool) DB::val('SELECT id FROM self_assessments WHERE student_id = ? AND ref_date = ?', [$uid, $today]),
-            'unread' => (int) DB::val('SELECT COUNT(*) FROM messages WHERE student_id = ? AND read_at IS NULL AND (sender_id IS NULL OR sender_id <> ?)', [$uid, $uid]),
+            'unread' => (int) DB::val('SELECT COUNT(*) FROM messages WHERE student_id = ? AND read_at IS NULL AND deleted_at IS NULL AND (sender_id IS NULL OR sender_id <> ?)', [$uid, $uid]),
             'pendingAssessment' => DB::one("SELECT * FROM physical_assessments WHERE student_id = ? AND status = 'submitted' ORDER BY id DESC LIMIT 1", [$uid]),
             'week' => Progress::week($uid, $today),
             'streak' => Progress::streak($uid, $today),

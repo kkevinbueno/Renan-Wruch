@@ -196,30 +196,61 @@ final class AuthController
 
     public function google(): void
     {
+        $link = input('vincular') && Auth::id();
         if (!OAuth::googleEnabled()) {
             flash('error', 'Login com Google ainda não está disponível.');
-            redirect('/entrar');
+            redirect($link ? Auth::home() : '/entrar');
         }
-        redirect(OAuth::googleRedirect());
+        redirect(OAuth::googleRedirect($link ? (int) Auth::id() : null));
+    }
+
+    /** Onde voltar depois de vincular/desvincular o Google. */
+    private function accountPage(): string
+    {
+        return Auth::canTrainer() ? '/painel/configuracoes?aba=conta' : '/app/perfil';
     }
 
     public function googleCallback(): void
     {
+        $linkUser = (int) ($_SESSION['oauth_link'] ?? 0);
+        unset($_SESSION['oauth_link']);
+        // Vincular só vale para a mesma conta que pediu (sessão ainda ativa).
+        if ($linkUser && $linkUser !== (int) Auth::id()) $linkUser = 0;
+        $fail = $linkUser ? $this->accountPage() : '/entrar';
         if (input('error')) {
-            flash('error', 'Login com Google cancelado.');
-            redirect('/entrar');
+            flash('error', input('error') === 'access_denied' ? 'Login com Google cancelado.' : 'O Google não concluiu o login. Tente novamente.');
+            redirect($fail);
         }
         try {
             $info = OAuth::googleCallback((string) input('code', ''), (string) input('state', ''));
+            if ($linkUser) {
+                Auth::linkProvider($linkUser, 'google', $info['sub']);
+                flash('success', 'Conta Google conectada. Agora você também pode entrar com o Google.');
+                redirect($this->accountPage());
+            }
             $this->finishOAuth('google', $info);
         } catch (UserError $e) {
             flash('error', $e->getMessage());
-            redirect('/entrar');
+            redirect($fail);
         } catch (RuntimeException $e) {
             Log::error('Google OAuth', ['e' => $e->getMessage()]);
             flash('error', 'Não foi possível entrar com o Google.');
-            redirect('/entrar');
+            redirect($fail);
         }
+    }
+
+    /** Desconecta o Google da conta (só se houver senha, para não perder o acesso). */
+    public function googleUnlink(): void
+    {
+        $u = Auth::user();
+        if (!$u['password_hash']) {
+            flash('error', 'Crie uma senha antes de desconectar o Google, para não perder o acesso à conta.');
+            redirect($this->accountPage());
+        }
+        DB::update('users', ['google_sub' => null, 'updated_at' => now()], 'id = ?', [$u['id']]);
+        Audit::log('auth.oauth_unlink', 'user', (int) $u['id'], ['provider' => 'google']);
+        flash('success', 'Conta Google desconectada.');
+        redirect($this->accountPage());
     }
 
     public function apple(): void

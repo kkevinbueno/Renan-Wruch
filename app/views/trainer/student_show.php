@@ -234,7 +234,7 @@
   <?php endif; ?>
 
 <?php endif; ?>
-<?php if ($tab === 'progresso'): ?><h2 class="section" style="margin-bottom:12px">Autoavaliações e alimentação</h2><?php endif; ?>
+<?php if ($tab === 'progresso'): ?><h2 class="section" style="margin-bottom:12px">Autoavaliações</h2><?php endif; ?>
 <?php if (in_array($tab, ['autoavaliacoes', 'progresso'], true)):
   $cats = $profile['categories'];
   $pendingDays = $dueDate < today() ? days_between($dueDate, today()) : 0;
@@ -251,7 +251,7 @@
         <?php foreach ($selfs as $i => $row): $sc = json_decode_array($row['scores']); $prev = isset($selfs[$i + 1]) ? json_decode_array($selfs[$i + 1]['scores']) : null; $flags = SelfEval::attention($sc, $prev); ?>
           <tr>
             <td data-label="Data" class="strong"><?= e(fmt_date_short($row['ref_date'])) ?></td>
-            <?php foreach ($cats as $c): $v = $sc[$c] ?? null; ?><td data-label="<?= e(Students::SELF_EVAL_CATEGORIES[$c] ?? $c) ?>"><?= $v ? '<span title="' . e(SelfEval::SCALE[$v]['label']) . '">' . SelfEval::SCALE[$v]['emoji'] . ' ' . (int) $v . '</span>' : '—' ?></td><?php endforeach; ?>
+            <?php foreach ($cats as $c): $v = $sc[$c] ?? null; ?><td data-label="<?= e(Students::SELF_EVAL_CATEGORIES[$c] ?? $c) ?>"><?= $v && isset(SelfEval::SCALE[$v]) ? '<span class="score-face" title="' . e(SelfEval::SCALE[$v]['label']) . '">' . SelfEval::face((int) $v, 'xs') . ' ' . (int) $v . '<span class="sr-only"> ' . e(SelfEval::SCALE[$v]['label']) . '</span></span>' : '—' ?></td><?php endforeach; ?>
             <td data-label="Atenção"><?php foreach ($flags as $k => $why): ?><span class="badge <?= $why === 'nota baixa' ? 'danger' : 'warn' ?>"><?= e(Students::SELF_EVAL_CATEGORIES[$k] ?? $k) ?>: <?= e($why) ?></span> <?php endforeach; ?><?= $flags ? '' : '—' ?></td>
             <td data-label="Observações" class="small pre"><?= e($row['notes'] ?: '—') ?></td>
           </tr>
@@ -261,11 +261,7 @@
     <?php endif; ?>
     <p class="hint mt">Indicadores de atenção: nota ≤ 2 ou queda de 2 pontos em relação ao registro anterior. São percepções do aluno, não diagnósticos.</p>
   </div>
-  <div class="card mt">
-    <h3>Alimentação e hidratação</h3>
-    <?php if (!$nutrition): ?><p class="small muted mt">Sem registros.</p><?php endif; ?>
-    <div class="list mt"><?php foreach ($nutrition as $n): ?><div class="list-item small"><div style="width:52px"><b><?= e((new DateTimeImmutable($n['ref_date']))->format('d/m')) ?></b></div><div class="grow"><b><?= e(NutritionController::MEALS[$n['meal']] ?? '') ?></b><?= $n['water_ml'] ? ' · ' . (int) $n['water_ml'] . ' ml' : '' ?><?php if ($n['description']): ?><div class="pre"><?= e($n['description']) ?></div><?php endif; ?><?php if ($n['notes']): ?><div class="muted"><?= e($n['notes']) ?></div><?php endif; ?></div></div><?php endforeach; ?></div>
-  </div>
+  <a class="card mt link-card" href="/painel/alimentacao?aluno=<?= (int) $id ?>"><?= icon('utensils') ?><div class="grow"><b>Alimentação e hidratação</b><div class="small muted">Refeições, água e observações ficam na aba Alimentação.</div></div><?= icon('chevron-right', 'icon-sm') ?></a>
 
 <?php endif; ?>
 <?php if ($tab === 'calendario'): ?>

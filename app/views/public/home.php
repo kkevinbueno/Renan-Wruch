@@ -19,32 +19,44 @@ foreach (preg_split('/\R/', (string) $s['public_testimonials']) ?: [] as $line) 
 }
 $aboutPhoto = $photoUrl ?: asset('img/renan-retrato.jpg');
 ?>
-<section class="hero">
-  <div>
-    <span class="eyebrow"><span class="dot" style="background:var(--blue)"></span> Consultoria esportiva · <?= e($s['trainer_name']) ?></span>
-    <h1><?php foreach ($words as $i => $w): ?><span class="w" style="--i:<?= $i ?>"><?= e($w) ?></span> <?php endforeach; ?><?php if ($lastWord !== null): ?><span class="w" style="--i:<?= count($words) ?>"><span class="hl"><?= e($lastWord) ?></span></span><?php endif; ?></h1>
-    <p class="lead"><?= e($s['public_intro']) ?></p>
-    <div class="cta">
-      <a class="btn pw lg" href="#planos">Ver planos <?= icon('chevron-right', 'icon-sm') ?></a>
-      <a class="btn secondary lg" href="<?= e($wa) ?>" target="_blank" rel="noopener"><?= icon('whatsapp') ?> WhatsApp</a>
+<section class="hp-hero" aria-labelledby="hp-title">
+  <div class="hp-panel">
+    <div class="hp-copy">
+      <p class="hp-kicker"><span class="hp-dot" aria-hidden="true"></span> Consultoria esportiva · <?= e($s['trainer_name']) ?></p>
+      <h1 id="hp-title"><?php foreach ($words as $i => $w): ?><span class="w" style="--i:<?= $i ?>"><?= e($w) ?></span> <?php endforeach; ?><?php if ($lastWord !== null): ?><span class="w" style="--i:<?= count($words) ?>"><span class="hl"><?= e($lastWord) ?></span></span><?php endif; ?></h1>
+      <p class="hp-lead"><?= e($s['public_intro']) ?></p>
+      <div class="hp-cta">
+        <a class="btn pw lg" href="#planos">Ver planos <?= icon('chevron-right', 'icon-sm') ?></a>
+        <a class="btn hp-ghost lg" href="<?= e($wa) ?>" target="_blank" rel="noopener"><?= icon('whatsapp') ?> Falar no WhatsApp</a>
+      </div>
+      <ul class="hp-trust">
+        <li><?= icon('user', 'icon-sm') ?><span><b>Treino individual</b> montado pelo <?= e($first) ?></span></li>
+        <li><?= icon('pin', 'icon-sm') ?><span><b>Online e presencial</b><?= trim((string) $s['trainer_city']) !== '' ? ' em ' . e($s['trainer_city']) : '' ?></span></li>
+        <li><?= icon('message', 'icon-sm') ?><span><b>Dúvidas respondidas</b> em até <?= $hours ?> h</span></li>
+        <?php if (trim((string) $s['trainer_cref']) !== ''): ?><li><?= icon('shield', 'icon-sm') ?><span><b>CREF</b> <?= e($s['trainer_cref']) ?></span></li><?php endif; ?>
+      </ul>
     </div>
-    <div class="hero-facts">
-      <div><span class="num"><?= count($modalities) ?></span><small>modalidades</small></div>
-      <div><span class="num">1:1</span><small>treino individual</small></div>
-      <div><span class="num"><?= $hours ?>h</span><small>para responder dúvidas</small></div>
-    </div>
-  </div>
-  <div class="hero-photo">
-    <img src="<?= asset('img/renan-corrida.jpg') ?>" alt="<?= e($s['trainer_name']) ?> correndo na pista de atletismo" width="390" height="727" fetchpriority="high">
-    <div class="float-card" style="top:22px;left:22px"><?= ring(1, 40, 5, icon('check', 'icon-sm')) ?><div><b>Treino no site</b><small>registro de cada série</small></div></div>
-    <div class="float-card" style="bottom:22px;right:22px"><span class="ico blue"><?= icon('pin', 'icon-sm') ?></span><div><b>Presencial</b><small>encontros com o <?= e($first) ?></small></div></div>
+    <figure class="hp-photo">
+      <img src="<?= asset('img/renan-corrida.jpg') ?>" alt="<?= e($s['trainer_name']) ?> correndo na pista de atletismo" width="390" height="727" fetchpriority="high">
+      <figcaption class="hp-badge"><span class="hp-badge-ico"><?= icon('check', 'icon-sm') ?></span><span><b><?= e($s['trainer_name']) ?></b><small>Treinador · <?= count($modalities) ?> modalidades</small></span></figcaption>
+    </figure>
   </div>
 </section>
 
 <?php if ($modalities): ?>
-<div class="marquee" aria-hidden="true"><div class="track">
-  <?php for ($i = 0; $i < 4; $i++): foreach ($modalities as $m): ?><span class="<?= e($tones[$m['slug']] ?? '') ?>"><i></i><?= e($m['name']) ?></span><?php endforeach; endfor; ?>
-</div></div>
+<section class="mod-strip" aria-label="Modalidades atendidas">
+  <p class="mod-strip-label">Modalidades</p>
+  <div class="mod-strip-viewport">
+    <ul class="mod-strip-track">
+      <?php for ($rep = 0; $rep < 2; $rep++): foreach ($modalities as $m): $img = is_file(APP_ROOT . '/public/assets/img/modalidades/' . $m['slug'] . '-claro.png'); ?>
+        <li<?= $rep ? ' aria-hidden="true"' : '' ?>>
+          <?php if ($img): ?><img class="mi-light" src="<?= asset('img/modalidades/' . $m['slug'] . '-claro.png') ?>" alt="" width="40" height="40" loading="lazy"><img class="mi-dark" src="<?= asset('img/modalidades/' . $m['slug'] . '-escuro.png') ?>" alt="" width="40" height="40" loading="lazy"><?php endif; ?>
+          <span><?= e($m['name']) ?></span>
+        </li>
+      <?php endforeach; endfor; ?>
+    </ul>
+  </div>
+</section>
 <?php endif; ?>
 
 <section class="pub-section" id="sobre">
@@ -67,7 +79,7 @@ $aboutPhoto = $photoUrl ?: asset('img/renan-retrato.jpg');
       <?php endif; ?>
       <?php if ($modalities): ?>
         <div class="about-mods">
-          <?php foreach ($modalities as $m): ?><span class="mod-chip <?= e($tones[$m['slug']] ?? '') ?>"><i></i><?= e($m['name']) ?></span><?php endforeach; ?>
+          <?php foreach ($modalities as $m): $img = is_file(APP_ROOT . '/public/assets/img/modalidades/' . $m['slug'] . '-claro.png'); ?><span class="mod-chip"><?php if ($img): ?><img class="mi-light" src="<?= asset('img/modalidades/' . $m['slug'] . '-claro.png') ?>" alt="" width="22" height="22" loading="lazy"><img class="mi-dark" src="<?= asset('img/modalidades/' . $m['slug'] . '-escuro.png') ?>" alt="" width="22" height="22" loading="lazy"><?php endif; ?><?= e($m['name']) ?></span><?php endforeach; ?>
         </div>
       <?php endif; ?>
     </div>

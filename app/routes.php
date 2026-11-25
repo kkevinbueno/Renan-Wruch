@@ -21,6 +21,7 @@ Router::post('/redefinir-senha', [AuthController::class, 'reset']);
 Router::post('/sair', [AuthController::class, 'logout']);
 Router::get('/auth/google', [AuthController::class, 'google']);
 Router::get('/auth/google/callback', [AuthController::class, 'googleCallback']);
+Router::post('/conta/google/desconectar', [AuthController::class, 'googleUnlink'], ['auth']);
 Router::get('/auth/apple', [AuthController::class, 'apple']);
 Router::post('/auth/apple/callback', [AuthController::class, 'appleCallback'], [], false);
 Router::get('/consentimento', [AuthController::class, 'consentForm'], ['auth']);
@@ -84,6 +85,7 @@ Router::post('/app/assinatura/{id}/cancelar', [SubscriptionController::class, 'c
 // Chat (compartilhado entre interfaces; autorização por conversa no controlador)
 Router::get('/api/mensagens/{id}', [ChatController::class, 'poll'], ['auth']);
 Router::post('/api/mensagens/{id}', [ChatController::class, 'send'], ['auth']);
+Router::post('/api/mensagens/{id}/{mid}/apagar', [ChatController::class, 'delete'], ['auth']);
 Router::get('/api/contadores', [ChatController::class, 'counters'], ['auth']);
 
 // ───────────── Interface do Renan ─────────────
@@ -117,7 +119,9 @@ Router::get('/painel/biblioteca', [LibraryController::class, 'index'], ['trainer
 Router::get('/api/biblioteca', [LibraryController::class, 'search'], ['trainer']);
 Router::get('/painel/biblioteca/novo', [LibraryController::class, 'form'], ['trainer']);
 Router::post('/painel/biblioteca', [LibraryController::class, 'store'], ['trainer']);
-Router::get('/painel/biblioteca/{id}', [LibraryController::class, 'form'], ['trainer']);
+Router::get('/painel/biblioteca/{id}', [LibraryController::class, 'show'], ['trainer']);
+Router::get('/painel/biblioteca/{id}/editar', [LibraryController::class, 'form'], ['trainer']);
+Router::post('/painel/biblioteca/{id}/favorito', [LibraryController::class, 'favorite'], ['trainer']);
 Router::post('/painel/biblioteca/{id}', [LibraryController::class, 'store'], ['trainer']);
 Router::post('/painel/biblioteca/{id}/duplicar', [LibraryController::class, 'duplicate'], ['trainer']);
 Router::post('/painel/biblioteca/{id}/arquivar', [LibraryController::class, 'archive'], ['trainer']);
@@ -133,6 +137,9 @@ Router::post('/painel/eventos', [CalendarController::class, 'saveEvent'], ['trai
 Router::post('/painel/eventos/{id}/excluir', [CalendarController::class, 'deleteEvent'], ['trainer']);
 Router::get('/painel/mensagens', [ChatController::class, 'trainerIndex'], ['trainer']);
 Router::get('/painel/mensagens/{id}', [ChatController::class, 'trainerThread'], ['trainer']);
+Router::get('/painel/alimentacao', [TrainerNutritionController::class, 'index'], ['trainer']);
+Router::post('/painel/alimentacao/observacoes', [TrainerNutritionController::class, 'addNote'], ['trainer']);
+Router::post('/painel/alimentacao/observacoes/{id}/excluir', [TrainerNutritionController::class, 'deleteNote'], ['trainer']);
 Router::get('/painel/financeiro', [FinanceController::class, 'index'], ['trainer']);
 Router::post('/painel/planos', [FinanceController::class, 'savePlan'], ['trainer']);
 Router::post('/painel/financeiro/sincronizar', [FinanceController::class, 'sync'], ['trainer']);

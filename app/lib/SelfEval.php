@@ -4,13 +4,31 @@ declare(strict_types=1);
 /** Escala de autoavaliação (1–5). As notas são percepções do aluno, não diagnósticos. */
 final class SelfEval
 {
+    /** Escala com expressões próprias (SVG), do vermelho suave ao verde. */
     public const SCALE = [
-        1 => ['emoji' => '😞', 'label' => 'Muito ruim'],
-        2 => ['emoji' => '🙁', 'label' => 'Ruim'],
-        3 => ['emoji' => '😐', 'label' => 'Regular'],
-        4 => ['emoji' => '🙂', 'label' => 'Bom'],
-        5 => ['emoji' => '😁', 'label' => 'Excelente'],
+        1 => ['label' => 'Muito ruim', 'tone' => 'lv1'],
+        2 => ['label' => 'Ruim', 'tone' => 'lv2'],
+        3 => ['label' => 'Regular', 'tone' => 'lv3'],
+        4 => ['label' => 'Bom', 'tone' => 'lv4'],
+        5 => ['label' => 'Excelente', 'tone' => 'lv5'],
     ];
+
+    /** Traços de cada expressão (viewBox 64×64): sobrancelhas/olhos/boca. */
+    private const FEATURES = [
+        1 => '<path class="ft" d="M18.5 22.5 27 18.8M45.5 22.5 37 18.8"/><circle class="eye" cx="24" cy="29.5" r="2.7"/><circle class="eye" cx="40" cy="29.5" r="2.7"/><path class="ft mouth" d="M22 46.5Q32 37.5 42 46.5"/>',
+        2 => '<circle class="eye" cx="24" cy="28.5" r="2.7"/><circle class="eye" cx="40" cy="28.5" r="2.7"/><path class="ft mouth" d="M23.5 44Q32 39.5 40.5 44"/>',
+        3 => '<circle class="eye" cx="24" cy="28.5" r="2.7"/><circle class="eye" cx="40" cy="28.5" r="2.7"/><path class="ft mouth" d="M24 42.5H40"/>',
+        4 => '<circle class="eye" cx="24" cy="28" r="2.7"/><circle class="eye" cx="40" cy="28" r="2.7"/><path class="ft mouth" d="M22.5 39Q32 47.5 41.5 39"/>',
+        5 => '<path class="ft" d="M19 30Q24 24 29 30M35 30Q40 24 45 30"/><path class="fill mouth" d="M21 37.5H43Q43 49 32 49Q21 49 21 37.5Z"/>',
+    ];
+
+    /** Expressão vetorial do nível (1–5). Decorativa: o texto do nível acompanha sempre. */
+    public static function face(int $level, string $cls = ''): string
+    {
+        $level = max(1, min(5, $level));
+        return '<svg class="face ' . self::SCALE[$level]['tone'] . ($cls !== '' ? ' ' . e($cls) : '') . '" viewBox="0 0 64 64" aria-hidden="true" focusable="false">'
+            . '<circle class="bg" cx="32" cy="32" r="29"/>' . self::FEATURES[$level] . '</svg>';
+    }
 
     public const DESCRIPTIONS = [
         'sono' => [1 => 'Dormi muito pouco ou acordei várias vezes.', 2 => 'Dormi menos que o normal e acordei cansado.', 3 => 'Sono razoável, nem bom nem ruim.', 4 => 'Dormi bem na maior parte dos dias.', 5 => 'Sono profundo e acordei descansado.'],

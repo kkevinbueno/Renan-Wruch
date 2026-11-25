@@ -10,9 +10,16 @@ Foi feita em **PHP 8.1+ e MySQL, sem dependências externas** (sem Composer, sem
 |---|---|
 | Acesso | Cadastro com e-mail e senha, login com Google e Apple, confirmação de e-mail, recuperação de senha, aprovação pelo Renan, consentimento LGPD |
 | Aluno | Treino do dia, registro série a série com salvamento automático, retomada, histórico, pedido de mudança de dia, calendário semanal/mensal, chat (texto, imagem, vídeo, documento e áudio gravado), autoavaliação 1–5 com emojis, alimentação e hidratação, avaliações físicas por fotos, assinatura, perfil, exportação de dados |
-| Renan | Painel com dados reais, Meus alunos (busca, filtros, ordenação e paginação), perfil do aluno com 7 abas, aprovação, pausa, encerramento e reativação com novo ciclo, biblioteca de exercícios, editor de treinos (arrastar e soltar, versões, rascunho, publicação agendada), modelos, revisão de avaliações com comparação de fotos, calendário, financeiro, configurações e registros de auditoria |
+| Renan | Aba Alimentação (refeições e hidratação dos alunos, com observações), biblioteca com centenas de exercícios, filtros e favoritos, painel com dados reais, Meus alunos (busca, filtros, ordenação e paginação), perfil do aluno com 7 abas, aprovação, pausa, encerramento e reativação com novo ciclo, biblioteca de exercícios, editor de treinos (arrastar e soltar, versões, rascunho, publicação agendada), modelos, revisão de avaliações com comparação de fotos, calendário, financeiro, configurações e registros de auditoria |
 | Desenvolvedores | Contas definidas no servidor que alternam entre a interface do aluno e a do Renan, com auditoria da identidade real. Não existe painel administrativo separado |
 | Plataforma | PWA (manifesto, ícones, service worker que não guarda dados privados), e-mails com fila, novas tentativas e deduplicação, cron, webhooks assinados e idempotentes |
+
+## Biblioteca de exercícios
+
+- O catálogo próprio (336 exercícios, a maioria de musculação) fica em `app/data/` e é importado **automaticamente** ao rodar `php cron/migrate.php`.
+- Para importar de novo ou completar depois de atualizar o catálogo: `php cron/import-exercises.php`. Pode rodar quantas vezes quiser: não duplica nada e não sobrescreve o que o Renan editou.
+- Os vídeos do catálogo começam como **pendentes de revisão**: nenhum link foi inventado. O Renan adiciona um vídeo próprio ou um link autorizado do YouTube/Vimeo e confirma na edição do exercício.
+- Se o banco for criado pelo phpMyAdmin (`database/schema.mysql.sql`), rode `php cron/import-exercises.php` uma vez (ou `php cron/migrate.php`).
 
 ## Estrutura
 

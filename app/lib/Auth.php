@@ -195,6 +195,18 @@ final class Auth
         return $user;
     }
 
+    /** Vincula o login social a uma conta já autenticada (sem trocar papel nem e-mail). */
+    public static function linkProvider(int $userId, string $provider, string $sub): void
+    {
+        $col = $provider === 'google' ? 'google_sub' : 'apple_sub';
+        $owner = DB::val("SELECT id FROM users WHERE {$col} = ?", [$sub]);
+        if ($owner && (int) $owner !== $userId) {
+            throw new UserError('Esta conta Google já está ligada a outro cadastro.');
+        }
+        DB::update('users', [$col => $sub, 'updated_at' => now()], 'id = ?', [$userId]);
+        Audit::log('auth.oauth_link', 'user', $userId, ['provider' => $provider], $userId);
+    }
+
     /** Login social: vincula por identificador do provedor ou por e-mail verificado. */
     public static function oauthLogin(string $provider, string $sub, string $email, bool $emailVerified, string $name): array
     {
@@ -211,6 +223,7 @@ final class Auth
                     $upd['email_verified_at'] = now();
                 }
                 DB::update('users', $upd, 'id = ?', [$user['id']]);
+                Audit::log('auth.oauth_link', 'user', (int) $user['id'], ['provider' => $provider, 'by' => 'verified_email'], (int) $user['id']);
                 $wasUnverified = !$user['email_verified_at'];
                 $user = array_merge($user, $upd);
                 if ($wasUnverified && $user['role'] === 'student') {

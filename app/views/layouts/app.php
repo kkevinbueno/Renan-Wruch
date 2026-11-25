@@ -10,7 +10,7 @@ if ($u) {
         $c = Cron::trainerCounters();
         $counts = ['home' => $c['pending'] + $c['assessments'] + $c['requests'], 'chat' => $c['unread']];
     } else {
-        $counts['chat'] = (int) DB::val('SELECT COUNT(*) FROM messages WHERE student_id = ? AND read_at IS NULL AND (sender_id IS NULL OR sender_id <> ?)', [$u['id'], $u['id']]);
+        $counts['chat'] = (int) DB::val('SELECT COUNT(*) FROM messages WHERE student_id = ? AND read_at IS NULL AND deleted_at IS NULL AND (sender_id IS NULL OR sender_id <> ?)', [$u['id'], $u['id']]);
     }
 }
 // Itens principais (5) — as telas internas acendem o item a que pertencem.
@@ -22,8 +22,32 @@ if ($mode === 'trainer') {
         ['calendar', '/painel/calendario', 'calendar', 'Agenda'],
         ['more', '/painel/mais', 'grid', 'Mais'],
     ];
-    $group = ['requests' => 'home', 'assessments' => 'home', 'library' => 'more', 'templates' => 'more', 'finance' => 'more', 'settings' => 'more'];
-    $subs = [['library', '/painel/biblioteca', 'Biblioteca'], ['finance', '/painel/financeiro', 'Financeiro'], ['settings', '/painel/configuracoes', 'Configurações']];
+    // "Alimentação" fica no menu lateral; no celular ela é acessada pela tela "Mais".
+    $sideExtra = [['nutrition', '/painel/alimentacao', 'utensils', 'Alimentação']];
+    $group = ['requests' => 'home', 'assessments' => 'home', 'library' => 'more', 'templates' => 'more', 'finance' => 'more', 'settings' => 'more', 'nutrition' => 'more'];
+    $tab = (string) ($_GET['aba'] ?? '');
+    // Seções do "Mais" (acordeão): cada uma abre/fecha; só uma aberta por vez.
+    $moreSections = [
+        'library' => ['Biblioteca', 'book', ['library', 'templates'], [
+            ['/painel/biblioteca', 'Exercícios', $nav === 'library' && empty($_GET['favoritos'])],
+            ['/painel/biblioteca?favoritos=1', 'Favoritos', $nav === 'library' && !empty($_GET['favoritos'])],
+            ['/painel/modelos', 'Modelos de treino', $nav === 'templates'],
+            ['/painel/biblioteca/novo', 'Novo exercício', false],
+        ]],
+        'finance' => ['Financeiro', 'card', ['finance'], [
+            ['/painel/financeiro#assinaturas', 'Assinaturas', false],
+            ['/painel/financeiro#pagamentos', 'Pagamentos', false],
+            ['/painel/financeiro#planos', 'Planos', false],
+        ]],
+        'settings' => ['Configurações', 'settings', ['settings'], [
+            ['/painel/configuracoes?aba=conta', 'Meu perfil', $nav === 'settings' && in_array($tab, ['', 'conta', 'consultoria', 'notificacoes'], true)],
+            ['/painel/configuracoes?aba=pagina', 'Página pública', $nav === 'settings' && $tab === 'pagina'],
+            ['/painel/configuracoes?aba=operacao', 'Regras e modalidades', $nav === 'settings' && in_array($tab, ['operacao', 'modalidades', 'lgpd'], true)],
+        ]],
+    ];
+    $openSection = null;
+    foreach ($moreSections as $k => [, , $navs]) if (in_array($nav, $navs, true)) $openSection = $k;
+    $moreOpen = $openSection !== null;
     $homeUrl = '/painel';
 } else {
     $items = [
@@ -34,7 +58,8 @@ if ($mode === 'trainer') {
         ['me', '/app/eu', 'user', 'Eu'],
     ];
     $group = ['self' => 'home', 'nutrition' => 'home', 'assessments' => 'me', 'subscription' => 'me', 'profile' => 'me', 'progress' => 'me'];
-    $subs = [];
+    $sideExtra = [];
+    $moreSections = [];
     $homeUrl = '/app';
 }
 $active = $group[$nav] ?? $nav;
@@ -63,13 +88,33 @@ $theme = ui_theme();
     <a class="brand" href="<?= $homeUrl ?>"><span class="brand-mark">WP</span><span><?= e($brand) ?></span></a>
     <nav class="nav">
       <?php foreach ($items as [$key, $href, $ico, $label]): ?>
+        <?php if ($key === 'more' && $moreSections): ?>
+          <?php foreach ($sideExtra as [$xk, $xh, $xi, $xl]): ?>
+            <a href="<?= e($xh) ?>" class="<?= $nav === $xk ? 'active' : '' ?>" <?= $nav === $xk ? 'aria-current="page"' : '' ?>><?= icon($xi) ?><span><?= e($xl) ?></span></a>
+          <?php endforeach; ?>
+          <div class="nav-group" data-nav-accordion>
+            <button type="button" class="navlink nav-toggle<?= $moreOpen ? ' has-active' : '' ?>" aria-expanded="<?= $moreOpen ? 'true' : 'false' ?>" aria-controls="nav-more" data-nav-more>
+              <?= icon($ico) ?><span><?= e($label) ?></span><?= icon('chevron-down', 'icon-sm chev') ?>
+            </button>
+            <div class="nav-collapse" id="nav-more" data-nav-panel<?= $moreOpen ? '' : ' hidden' ?>><div class="nav-collapse-inner">
+              <?php foreach ($moreSections as $sk => [$sl, $si, $snavs, $links]): $isOpen = $openSection === $sk; ?>
+                <button type="button" class="navlink nav-sub-toggle<?= in_array($nav, $snavs, true) ? ' has-active' : '' ?>" aria-expanded="<?= $isOpen ? 'true' : 'false' ?>" aria-controls="nav-<?= e($sk) ?>" data-nav-section="<?= e($sk) ?>">
+                  <?= icon($si, 'icon-sm') ?><span><?= e($sl) ?></span><?= icon('chevron-down', 'icon-sm chev') ?>
+                </button>
+                <div class="nav-collapse" id="nav-<?= e($sk) ?>" data-nav-panel<?= $isOpen ? '' : ' hidden' ?>><div class="nav-collapse-inner">
+                  <?php foreach ($links as [$lh, $ll, $lActive]): ?>
+                    <a href="<?= e($lh) ?>" class="sub<?= $lActive ? ' active' : '' ?>"<?= $lActive ? ' aria-current="page"' : '' ?>><?= e($ll) ?></a>
+                  <?php endforeach; ?>
+                </div></div>
+              <?php endforeach; ?>
+            </div></div>
+          </div>
+          <?php continue; ?>
+        <?php endif; ?>
         <a href="<?= e($href) ?>" class="<?= $active === $key ? 'active' : '' ?>" <?= $nav === $key ? 'aria-current="page"' : '' ?>>
           <?= icon($ico) ?><span><?= e($label) ?></span>
           <?php if (!empty($counts[$key])): ?><span class="count" data-counter="<?= e($key) ?>"><?= (int) $counts[$key] ?></span><?php endif; ?>
         </a>
-        <?php if ($key === 'more'): foreach ($subs as [$sk, $sh, $sl]): ?>
-          <a href="<?= e($sh) ?>" class="sub <?= $nav === $sk || ($sk === 'library' && $nav === 'templates') ? 'active' : '' ?>"><?= e($sl) ?></a>
-        <?php endforeach; endif; ?>
       <?php endforeach; ?>
     </nav>
     <div class="sidebar-foot">

@@ -14,6 +14,8 @@ final class Seeder
                 ]);
             }
         }
+        // Biblioteca de exercícios: importa o catálogo uma vez por versão (sem duplicar).
+        ExerciseLibrary::ensureImported();
     }
 
     /**

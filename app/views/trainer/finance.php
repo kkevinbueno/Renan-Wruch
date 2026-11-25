@@ -20,7 +20,7 @@ $lateSubs = (int) DB::val("SELECT COUNT(*) FROM subscriptions WHERE status = 'pa
 
 <div class="grid grid-main">
   <div class="stack">
-    <div class="card">
+    <div class="card" id="assinaturas">
       <div class="card-head"><h3>Assinaturas</h3>
         <form method="get"><select name="situacao" data-autosubmit style="width:auto;min-height:36px" aria-label="Filtrar situação"><option value="">Todas (exceto expiradas)</option><?php foreach (Billing::STATUS_LABELS as $k => $l): ?><option value="<?= e($k) ?>"<?= selected($k, $status) ?>><?= e($l) ?></option><?php endforeach; ?></select></form>
       </div>
@@ -39,7 +39,7 @@ $lateSubs = (int) DB::val("SELECT COUNT(*) FROM subscriptions WHERE status = 'pa
       </table></div>
       <?php endif; ?>
     </div>
-    <div class="card">
+    <div class="card" id="pagamentos">
       <div class="card-head"><h3>Pagamentos recentes</h3></div>
       <?php if (!$payments): ?><p class="small muted">Nenhum pagamento recebido.</p><?php else: ?>
       <div class="table-wrap"><table class="table stack-mobile">
@@ -53,7 +53,7 @@ $lateSubs = (int) DB::val("SELECT COUNT(*) FROM subscriptions WHERE status = 'pa
   </div>
 
   <div class="stack">
-    <div class="card">
+    <div class="card" id="planos">
       <h3>Planos</h3>
       <?php if (!$plans): ?><p class="small muted mt">Nenhum plano cadastrado.</p><?php endif; ?>
       <div class="list mt"><?php foreach ($plans as $pl): ?><a class="list-item" href="/painel/financeiro?plano=<?= (int) $pl['id'] ?>"><div class="grow"><div class="list-title"><?= e($pl['name']) ?></div><div class="list-sub"><?= money((int) $pl['price_cents']) ?> / <?= (int) $pl['period_months'] ?> <?= (int) $pl['period_months'] === 1 ? 'mês' : 'meses' ?></div></div><span class="badge <?= $pl['active'] ? 'ok' : 'outline' ?>"><?= $pl['active'] ? 'Ativo' : 'Inativo' ?></span></a><?php endforeach; ?></div>
