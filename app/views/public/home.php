@@ -36,7 +36,7 @@ $aboutPhoto = $photoUrl ?: asset('img/renan-retrato.jpg');
   </div>
   <div class="hero-photo">
     <img src="<?= asset('img/renan-corrida.jpg') ?>" alt="<?= e($s['trainer_name']) ?> correndo na pista de atletismo" width="390" height="727" fetchpriority="high">
-    <div class="float-card" style="top:22px;left:22px"><?= ring(1, 40, 5, icon('check', 'icon-sm')) ?><div><b>Treino no app</b><small>registro de cada série</small></div></div>
+    <div class="float-card" style="top:22px;left:22px"><?= ring(1, 40, 5, icon('check', 'icon-sm')) ?><div><b>Treino no site</b><small>registro de cada série</small></div></div>
     <div class="float-card" style="bottom:22px;right:22px"><span class="ico blue"><?= icon('pin', 'icon-sm') ?></span><div><b>Presencial</b><small>encontros com o <?= e($first) ?></small></div></div>
   </div>
 </section>
@@ -80,7 +80,7 @@ $aboutPhoto = $photoUrl ?: asset('img/renan-retrato.jpg');
   <div class="steps">
     <div class="step"><h3>Escolha o plano</h3><p class="muted small mt">Online, com encontros presenciais ou só presencial. Você cria a conta e o <?= e($first) ?> aprova o seu acesso.</p></div>
     <div class="step"><h3>Avaliação inicial</h3><p class="muted small mt">Responda algumas perguntas sobre rotina, objetivo e histórico. Nos planos com presencial, já marque o primeiro encontro.</p></div>
-    <div class="step"><h3>Treino sob medida</h3><p class="muted small mt">Seu treino chega no app, um exercício por vez, com vídeos e instruções. Os encontros aparecem na mesma agenda.</p></div>
+    <div class="step"><h3>Treino sob medida</h3><p class="muted small mt">Seu treino fica na sua área do aluno, no site, um exercício por vez, com vídeos e instruções. Os encontros aparecem na mesma agenda.</p></div>
     <div class="step"><h3>Acompanhamento</h3><p class="muted small mt">Registre o que fez, tire dúvidas com foto, vídeo ou áudio e acompanhe sua evolução.</p></div>
   </div>
 </section>
@@ -106,10 +106,10 @@ $aboutPhoto = $photoUrl ?: asset('img/renan-retrato.jpg');
 
   <div class="faq">
     <h3 class="faq-title">Perguntas frequentes</h3>
-    <details><summary>Qual a diferença entre o online e o presencial?</summary><p>No online, o treino, os registros e a conversa com o <?= e($first) ?> acontecem pela plataforma. Nos planos com presencial, além disso, você tem encontros com ele na frequência do seu plano.</p></details>
+    <details><summary>Qual a diferença entre o online e o presencial?</summary><p>No online, o treino, os registros e a conversa com o <?= e($first) ?> acontecem pelo site. Nos planos com presencial, você também tem encontros com ele, na frequência do seu plano. O plano só presencial também inclui o treino e o chat pelo site, para você treinar entre um encontro e outro.</p></details>
     <details><summary>Como funcionam os encontros presenciais?</summary><p>Você marca o encontro nos horários livres do <?= e($first) ?>, dentro do que o seu plano permite. O local é definido por ele<?= $s['trainer_city'] !== '' ? ', em ' . e($s['trainer_city']) : '' ?>, e o encontro aparece na sua agenda com data, hora e endereço.</p></details>
     <details><summary>Em quanto tempo o <?= e($first) ?> responde?</summary><p>O <?= e($first) ?> costuma responder em até <?= $hours ?> h. Dá para mandar a dúvida com foto, vídeo da execução ou áudio.</p></details>
-    <details><summary>Preciso instalar alguma coisa?</summary><p>Não. Tudo funciona pelo navegador do celular ou do computador. Se quiser, dá para adicionar à tela inicial.</p></details>
+    <details><summary>Preciso baixar algum aplicativo?</summary><p>Não. Tudo funciona pelo site, no navegador do celular ou do computador: treino, agenda dos encontros e conversa com o <?= e($first) ?>. Se quiser, dá para adicionar o site à tela inicial do celular.</p></details>
   </div>
 </section>
 
