@@ -27,14 +27,14 @@ final class TrainerSettingsController
     /** Somente chaves conhecidas, por aba. */
     private const EDITABLE = [
         'consultoria' => ['brand_name', 'trainer_name', 'accent_color'],
-        'pagina' => ['public_headline', 'public_intro', 'public_about', 'contact_whatsapp', 'contact_whatsapp_label', 'contact_instagram', 'contact_email'],
+        'pagina' => ['public_headline', 'public_intro', 'public_about', 'trainer_formation', 'trainer_cref', 'trainer_city', 'response_hours', 'public_testimonials', 'contact_whatsapp', 'contact_whatsapp_label', 'contact_instagram', 'contact_email'],
         'notificacoes' => ['notify_trainer_new_signup', 'notify_trainer_assessment', 'notify_trainer_requests', 'notify_trainer_daily_digest', 'trainer_digest_hour', 'chat_digest_minutes'],
         'operacao' => ['billing_policy', 'billing_grace_days', 'workout_stale_days', 'default_self_eval_days', 'default_assessment_days', 'upload_image_mb', 'upload_video_mb', 'upload_audio_mb', 'upload_document_mb'],
         'lgpd' => ['retention_months_after_end'],
     ];
 
     private const CHECKBOXES = ['notify_trainer_new_signup', 'notify_trainer_assessment', 'notify_trainer_requests', 'notify_trainer_daily_digest'];
-    private const NUMERIC = ['trainer_digest_hour' => [0, 23], 'chat_digest_minutes' => [5, 240], 'billing_grace_days' => [0, 60], 'workout_stale_days' => [7, 365], 'default_self_eval_days' => [1, 60], 'default_assessment_days' => [7, 365], 'upload_image_mb' => [1, 50], 'upload_video_mb' => [5, 1024], 'upload_audio_mb' => [1, 200], 'upload_document_mb' => [1, 100], 'retention_months_after_end' => [0, 120]];
+    private const NUMERIC = ['response_hours' => [1, 168], 'trainer_digest_hour' => [0, 23], 'chat_digest_minutes' => [5, 240], 'billing_grace_days' => [0, 60], 'workout_stale_days' => [7, 365], 'default_self_eval_days' => [1, 60], 'default_assessment_days' => [7, 365], 'upload_image_mb' => [1, 50], 'upload_video_mb' => [5, 1024], 'upload_audio_mb' => [1, 200], 'upload_document_mb' => [1, 100], 'retention_months_after_end' => [0, 120]];
 
     public function save(): void
     {

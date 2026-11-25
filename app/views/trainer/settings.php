@@ -28,6 +28,13 @@ foreach ($groups as $g => [, $subs]) if (isset($subs[$tab])) $current = $g;
     <div class="field"><label for="pi">Texto de apresentação</label><textarea id="pi" name="public_intro" rows="3"><?= e($s['public_intro']) ?></textarea></div>
     <div class="field"><label for="pa">Sobre o Renan</label><textarea id="pa" name="public_about" rows="6" placeholder="Formação, experiência e forma de trabalho (deixe em branco para ocultar a seção)"><?= e($s['public_about']) ?></textarea></div>
     <div class="form-grid cols-2 mt">
+      <div class="field"><label for="tf">Formação</label><input id="tf" name="trainer_formation" value="<?= e($s['trainer_formation']) ?>" placeholder="Ex.: Educação Física"></div>
+      <div class="field"><label for="tc">Registro profissional (CREF)</label><input id="tc" name="trainer_cref" value="<?= e($s['trainer_cref']) ?>" placeholder="Ex.: 000000-G/SP"></div>
+      <div class="field"><label for="tci">Cidade dos encontros presenciais</label><input id="tci" name="trainer_city" value="<?= e($s['trainer_city']) ?>"></div>
+      <div class="field"><label for="rh">Prazo de resposta às dúvidas (horas)</label><input id="rh" type="number" min="1" max="168" name="response_hours" value="<?= e($s['response_hours']) ?>"></div>
+    </div>
+    <div class="field"><label for="pt">Depoimentos</label><textarea id="pt" name="public_testimonials" rows="4" placeholder="Um por linha, no formato: Nome | depoimento"><?= e($s['public_testimonials']) ?></textarea><small class="muted">Só depoimentos reais, com autorização do aluno. Em branco, a seção não aparece.</small></div>
+    <div class="form-grid cols-2 mt">
       <div class="field"><label for="cw">WhatsApp (somente números com DDI)</label><input id="cw" name="contact_whatsapp" value="<?= e($s['contact_whatsapp']) ?>"></div>
       <div class="field"><label for="cwl">WhatsApp (como exibir)</label><input id="cwl" name="contact_whatsapp_label" value="<?= e($s['contact_whatsapp_label']) ?>"></div>
       <div class="field"><label for="ci">Instagram (URL)</label><input id="ci" name="contact_instagram" value="<?= e($s['contact_instagram']) ?>"></div>
